@@ -133,3 +133,7 @@ function submitReview(targetName, index) {
     });
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('searchBox').addEventListener('input', handleSearch);
+    loadWorkjobs();
+});
