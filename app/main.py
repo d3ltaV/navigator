@@ -48,7 +48,7 @@ assets.auto_build = True
 
 with app.app_context():
     pass
-    init_db()
+    #init_db()
 
 
 @login_manager.user_loader
@@ -194,6 +194,7 @@ def getReviews(target_type, target_name):
     return jsonify(review_list)
 
 @app.route("/api/reviews", methods=["POST"])
+@login_required
 def addReview():
     data = request.json
     target_type = data.get("target_type")
