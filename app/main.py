@@ -65,8 +65,7 @@ scss_all = Bundle(
     'scss/classes.scss',
     'scss/workjobs.scss',
     'scss/map.scss',
-    'scss/cocurriculars.scss',
-    'scss/login.scss',
+    'scss/reference.scss',
     filters='libsass',
     output='css/compiled.css'
 )
@@ -175,7 +174,9 @@ def api_workjobs(location):
 
     print(f"No match found for: '{loc}'")
     return jsonify({"error": "No workjobs found"}), 404
-
+@app.route("/resources")
+def resources():
+    return render_template("reference.html")
 @app.route("/api/reviews/<target_type>/<target_name>")
 def getReviews(target_type, target_name):
     reviews = Review.target_review(target_type, target_name)
