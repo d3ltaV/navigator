@@ -48,7 +48,7 @@ assets.auto_build = True
 
 with app.app_context():
     pass
-    #init_db()
+    init_db()
 
 
 @login_manager.user_loader
@@ -66,6 +66,7 @@ scss_all = Bundle(
     'scss/workjobs.scss',
     'scss/map.scss',
     'scss/reference.scss',
+    'scss/login.scss',
     filters='libsass',
     output='css/compiled.css'
 )
