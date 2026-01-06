@@ -60,7 +60,6 @@ function displayWorkjobs(workjobs) {
         </div>`;
         html += '</div>';
     }
-
     grid.innerHTML = html;
 }
 

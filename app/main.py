@@ -20,7 +20,8 @@ import os
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 load_dotenv()
 from utils.workjobs import WORKJOBS
-from utils.classes import CLASSES
+from utils.classes import CLASSES #format: list of [Class objects]
+from utils.cocurriculars import COCURRICULARS #format: list of [Cocurricular objects]
 
 BUILDINGS = ["Bolger", "Alumni Hall", "Schauffler Library", "Gym", "Gilder", "Various Locations", "RAC",
              "Health Center", "Communications Office", "Early Childhood Center", "Farm", "Service Learning",
@@ -49,6 +50,7 @@ scss_all = Bundle(
     'scss/classes.scss',
     'scss/workjobs.scss',
     'scss/map.scss',
+    'scss/cocurriculars.scss',
     'scss/reference.scss',
     'scss/login.scss',
     filters='libsass',
@@ -70,10 +72,13 @@ def get_google_provider_cfg():
 
 @app.route('/')
 def home():
-    # if not current_user.is_authenticated:
-    #     return redirect(url_for('loginPage'))
+    if not current_user.is_authenticated:
+        return redirect(url_for('loginPage'))
     return render_template("index.html")
 
+@app.route("/cocurriculars")
+def cocurricular_view():
+    return render_template("cocurriculars.html")
 
 @app.route("/workjobs")
 def workjob_view():
@@ -83,11 +88,6 @@ def workjob_view():
 @app.route("/classes")
 def class_view():
     return render_template("classes.html")
-
-
-@app.route("/cocurriculars")
-def cocurricular_view():
-    return render_template("cocurriculars.html")
 
 @app.route("/api/search")
 def api_search():
@@ -109,7 +109,7 @@ def api_search():
                 if query in searchable_text:
                     results.append(job_dict)
         return jsonify(results)
-#test
+
     elif searchType == 'classes':
         if not query:
             all_classes = []
@@ -166,9 +166,7 @@ def api_workjobs(location):
 
     print(f"No match found for: '{loc}'")
     return jsonify({"error": "No workjobs found"}), 404
-@app.route("/resources")
-def resources():
-    return render_template("reference.html")
+
 @app.route("/api/reviews/<target_type>/<target_name>")
 def getReviews(target_type, target_name):
     reviews = Review.target_review(target_type, target_name)
@@ -266,6 +264,9 @@ def logout():
     logout_user()
     return redirect(url_for("home"))
 
+@app.route("/resources")
+def resources():
+    return render_template("reference.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
