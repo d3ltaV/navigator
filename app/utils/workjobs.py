@@ -71,7 +71,7 @@ class WorkJobList:
     def printWorkjobs():
         wj = WorkJobList.getWorkjobs()
         workjobs = WorkJobList.sortByLocation(wj)
-        print("Workjobs by Location:")
+        ("Workjobs by Location:")
         for location, jobs in workjobs.items():
             print(f"----------------{location}----------------")
             for job in jobs:
