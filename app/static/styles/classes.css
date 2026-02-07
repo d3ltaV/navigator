@@ -1,0 +1,183 @@
+:root {
+    --navy: #003366;
+    --maroon: #8B0000;
+    --lp: #dbc1c1;
+
+    --bb: #bbd3de;
+    --bb2: #d3e5ed;
+    --dg: #232323;
+    --lg: #f4f4f4;
+    --mg: #eeeeee;
+    --w: #ffffff;
+    --text: #333;
+    background-color: var(--mg);
+
+}
+
+.classes-container {
+    max-width: 80vw;
+    margin: 0 auto;
+
+    .classes-header {
+        padding: 4vh;
+        border: none;
+        margin: 5vh 0vh;
+        /* background-color: var(--bb); */
+        background: linear-gradient(180deg, var(--bb), var(--mg)); 
+
+        h1 {
+            font-weight: 700;
+            color: var(--navy);
+            font-size: 2.8vh;
+            margin: 0 0 20px 0;
+        }
+
+        .search-container {
+            margin-bottom: 4vh;
+
+            .search-box {
+                width: 100%;
+                padding: 1.7vh 1.5vw;
+                font-size: 1.7vh;
+                border: none;
+                outline: none;
+            }
+        }
+
+        .filter-sort-container {
+            display: flex;
+            gap: 1.5vw;
+            margin-bottom: 3vh;
+            color: var(--text);
+
+            .filter-container,
+            .sort-container {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5vh;
+
+                label {
+                    font-weight: 600;
+                }
+
+                select {
+                    padding: 1.2vh 1.2vw;
+                    font-size: 1.6vh;
+                    border: none;
+                    color: var(--dg);
+                    cursor: pointer;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+
+                    
+                    background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5 7l5 5 5-5z'/></svg>");
+                    background-repeat: no-repeat;
+                    background-position: right 0.8vw center;
+                    background-size: 1.2vh;
+                    padding-right: 2.5vw;
+                }
+
+                select:hover, select:focus {
+                    border: none;
+                    box-shadow: none;
+                    outline: none;
+                }
+
+
+                .checkbox-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                }
+            }
+        }
+
+        .results-info {
+            padding: 10px 0;
+            color: #333;
+            font-size: 14px;
+        }
+    }
+
+    .classes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 3vh;
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text);
+        }
+
+        .class-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 4vh;
+            
+            .class-title {
+                color: var(--dg);
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            .tags {
+
+
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.6rem;
+                margin: 10px 0 14px 0;
+
+                button {
+                    background-color: var(--bb2);
+                    color: var(--navy);
+                    border: none;
+                    padding: 6px 12px;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    border-radius: 999px; /* pill shape */
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+
+                button:hover {
+                    background-color: var(--navy);
+                    color: var(--w);
+                    transform: translateY(-1px);
+                }
+
+                button:active {
+                    transform: translateY(0);
+                    opacity: 0.9;
+                }
+                
+            }
+
+            .class-info {
+                margin: 8px 0;
+                color: #000;
+                font-size: 14px;
+
+                strong {
+                    color: #000;
+                }
+            }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #333;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+
+            h2 {
+                margin-bottom: 10px;
+                color: #666;
+            }
+        }
+    }
+}

@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
-from flask_assets import Environment, Bundle
 import json
 from dotenv import load_dotenv
 
@@ -23,25 +22,6 @@ app = Flask(__name__)
 
 app.secret_key = os.environ.get("CLIENT_ID", None)
 
-assets = Environment(app)
-assets.url = app.static_url_path
-assets.directory = app.static_folder
-assets.debug = True
-assets.auto_build = True
-
-scss_all = Bundle(
-    'scss/index.scss',
-    'scss/base.scss',
-    'scss/classes.scss',
-    'scss/workjobs.scss',
-    'scss/map.scss',
-    'scss/cocurriculars.scss',
-    'scss/reference.scss',
-    'scss/login.scss',
-    filters='libsass',
-    output='css/compiled.css'
-)
-assets.register('scss_all', scss_all)
 
 @app.route('/')
 def home():
