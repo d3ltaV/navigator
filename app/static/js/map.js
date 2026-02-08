@@ -38,17 +38,34 @@ async function initMap() {
     });
 
     locations.forEach(({ title, position }, i) => {
-        const pin = new PinElement({
-            glyphText: `${i + 1}`,
-            scale: 1.5
-        });
 
-        const marker = new AdvancedMarkerElement({
-            map: mapElement.innerMap,
-            position,
-            title,
-            content: pin.element
-        });
+
+
+  const el = document.createElement("div");
+  el.className = "rect-pin";
+  el.textContent = title; //
+    Object.assign(el.style, {
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1vh 1vw",
+            whiteSpace: "nowrap",
+            background: "#ea665a",
+            color: "#420505",
+            fontWeight: "600",
+            fontSize: "13px",
+            lineHeight: "1",
+            borderRadius: "6px"
+
+
+  });
+  const marker = new AdvancedMarkerElement({
+    map: mapElement.innerMap,
+    position,
+    title,
+    content: el
+  });
+
 
         marker.addListener("click", () => {
             fetch(`/api/workjobs/${encodeURIComponent(title)}`)
