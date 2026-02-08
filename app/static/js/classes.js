@@ -14,16 +14,16 @@ function loadClasses() {
         });
 }
 
-function extractSubject(bnc) {
-    if (!bnc) return '';
-    const match = bnc.match(/^[A-Z_]+/);
+function extractSubject(code) {
+    if (!code) return '';
+    const match = code.match(/^[A-Z_]+/);
     return match ? match[0] : '';
 }
 
 function populateSubjectFilter() {
     const subjects = new Set();
     allClasses.forEach(c => {
-        const subject = extractSubject(c.bnc);
+        const subject = extractSubject(c.code);
         if (subject) {
             subjects.add(subject);
         }
@@ -56,7 +56,7 @@ function filterBySubject(classes) {
     }
 
     return classes.filter(c => {
-        const subject = extractSubject(c.bnc);
+        const subject = extractSubject(c.code);
         return subject === currentSubjectFilter;
     });
 }
@@ -82,9 +82,6 @@ function sortClasses(classes) {
             sorted.sort((a, b) => {
                 return (b.ncaa ? 1 : 0) - (a.ncaa ? 1 : 0);
             });
-            break;
-        case 'bnc':
-            sorted.sort((a, b) => (a.bnc || '').localeCompare(b.bnc || ''));
             break;
     }
 

@@ -24,27 +24,19 @@
                     <option value="">All Subjects</option>
                 </select>
             </div>
-            <div class="filter-sort-container">
-                <div class="filter-container">
-                    <label for="subjectFilter">Filter by Subject:</label>
-                    <select id="subjectFilter" class="subject-filter">
-                        <option value="">All Subjects</option>
-                    </select>
-                </div>
-                <div class="sort-container">
-                    <label for="sortSelect">Sort by:</label>
-                    <select id="sortSelect" class="sort-select">
-                        <option value="name">Class Name</option>
-                        <option value="code">BNC Code</option>
-                        <option value="credit">Credit Level</option>
-                        <option value="ncaa">NCAA Status</option>
+            <div class="sort-container">
+                <label for="sortSelect">Sort by:</label>
+                <select id="sortSelect" class="sort-select">
+                    <option value="name">Class Name</option>
+                    <option value="code">Class Code</option>
+                    <option value="credit">Credit Level</option>
+                    <option value="ncaa">NCAA Status</option>
 
-                    </select>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="descendingCheck" class="sort-checkbox">
-                        Descending
-                    </label>
-                </div>
+                </select>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="descendingCheck" class="sort-checkbox">
+                    Descending
+                </label>
             </div>
         </div>
         <div class="results-info" id="resultsInfo">Loading Classes...</div>
