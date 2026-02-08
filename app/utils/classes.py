@@ -21,7 +21,7 @@ class ClassList:
 
     def to_dict(self):
         return {
-            "dpt": self.name,
+            "dpt": self.dpt,
             "code": self.code,
             "name": self.name,
             "credit": self.credit,

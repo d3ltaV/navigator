@@ -1,0 +1,134 @@
+:root {
+    --navy: #003366;
+    --maroon: #8B0000;
+    --lp: #dbc1c1;
+    --dm: #4e0a0a;
+    --bb: #bbd3de;
+    --bb2: #d3e5ed;
+    --dg: #232323;
+    --lg: #f4f4f4;
+    --mg: #eeeeee;
+    --w: #ffffff;
+    --text: #333;
+    background-color: var(--mg);
+}
+.cocurriculars-container {
+    max-width: 80vw;
+    margin: 0 auto;
+
+    .cocurriculars-header {
+        padding: 4vh;
+        border: none;
+        margin: 5vh 0vh;
+        background: linear-gradient(180deg, var(--bb), var(--mg)); 
+
+        h1 {
+            font-weight: 700;
+            color: var(--navy);
+            font-size: 2.8vh;
+            margin: 0 0 20px 0;
+        }
+    }
+
+
+    .search-container {
+        margin-bottom: 4vh;
+
+        .search-box {
+            width: 100%;
+            padding: 1.7vh 1.5vw;
+            font-size: 1.7vh;
+            border: none;
+            outline: none;
+        }
+    }
+
+    .results-info {
+        padding: 10px 0;
+        color: var(--text);
+        font-size: 14px;
+    }
+
+
+    .cocurriculars-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(20vw, 1fr));
+        gap: 3vh;
+
+        .cocurricular-card {
+            background-color: var(--w);
+            border-radius: 8px;
+            padding: 4vh;
+
+            .cocurricular-title {
+                color: var(--dg);
+                font-size: 2vh;
+                font-weight: 700;
+                margin-bottom: 2vh;
+            }
+
+            .tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.7vw;
+                margin: 1vh 0 3vh 0;
+
+                button {
+                    background-color: var(--bb2);
+                    color: var(--navy);
+                    border: none;
+                    padding: 1vh 1.2vh;
+                    font-size: 1.5vh;
+                    font-weight: 600;
+                    border-radius: 999px; 
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+                .n {
+                    background-color: #c1dcc7 ;
+                    color: #1f3c25;
+                }
+
+                button:hover {
+                    transform: translateY(-1px);
+                }
+
+                button:active {
+                    transform: translateY(0);
+                    opacity: 0.9;
+                }
+                
+            }
+
+            .cocurricular-info {
+                margin: 1.25vh 0;
+                color: var(--text);
+                font-size: 1.7vh;
+
+                strong {
+                    color: var(--dm);
+                }
+            }
+        }
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 60px 20px;
+        color: #333;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+
+        h2 {
+            margin-bottom: 10px;
+            color: #666;
+        }
+    }
+
+    
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: #333;
+    }
+}

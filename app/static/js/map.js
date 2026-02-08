@@ -34,21 +34,39 @@ async function initMap() {
         restriction: {
             latLngBounds: bounds,
             strictBounds: true
-        }
+        },
+        minZoom: 16.8
     });
 
     locations.forEach(({ title, position }, i) => {
-        const pin = new PinElement({
-            glyphText: `${i + 1}`,
-            scale: 1.5
-        });
 
-        const marker = new AdvancedMarkerElement({
-            map: mapElement.innerMap,
-            position,
-            title,
-            content: pin.element
-        });
+
+
+  const el = document.createElement("div");
+  el.className = "rect-pin";
+  el.textContent = title; //
+    Object.assign(el.style, {
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1vh 1vw",
+            whiteSpace: "nowrap",
+            background: "#ea665a",
+            color: "#420505",
+            fontWeight: "600",
+            fontSize: "1.7vh",
+            lineHeight: "1",
+            borderRadius: "6px"
+
+
+  });
+  const marker = new AdvancedMarkerElement({
+    map: mapElement.innerMap,
+    position,
+    title,
+    content: el
+  });
+
 
         marker.addListener("click", () => {
             fetch(`/api/workjobs/${encodeURIComponent(title)}`)
@@ -57,14 +75,15 @@ async function initMap() {
                     const popup = document.getElementById("popup");
                     const popupContent = document.getElementById("popup-content");
 
-                    let html = `<h3>${title}</h3><strong>Workjobs:</strong><br><br>`;
+                    let html = `<h3>${title}</h3>`;
+                    html += '<p class="wj"><strong>Workjobs:</strong></p>'
 
                     if (!data.error) {
                         data.forEach(job => {
                             const sJob = encodeURIComponent(JSON.stringify(job));
                             const sData = encodeURIComponent(JSON.stringify(data));
                             const name = job.name ?? "Unnamed Workjob";
-                            html += `<a href="#" class="workjob-link" data-job="${sJob}" data-all="${sData}">${name}</a><br>`;
+                            html += `<a href="#" class="workjob-link" data-job="${sJob}" data-all="${sData}">${name}</a><br>`; //wj links
                         });
                     } else {
                         html += "No workjobs found.";
@@ -112,17 +131,27 @@ function showWorkJobDetail(workjob, allJobs) {
         html += '</div>';
     }
 
-    html += `
-        <h2>${workjob.name}</h2>
-        <p><strong>Location:</strong> ${workjob.location ?? 'N/A'}</p>
-        <p><strong>Supervisor:</strong> ${workjob.supervisor ?? 'N/A'}</p>
-        <p><strong>Email:</strong> ${workjob.supervisor_email ?? 'N/A'}</p>
-        <p><strong>Spots:</strong> ${workjob.spots ?? 'N/A'}</p>
-        <p><strong>Blocks:</strong> ${workjob.blocks ?? 'N/A'}</p>
-        <p><strong>Type:</strong> ${workjob.selected_or_assigned ?? 'N/A'}</p>
-        <p><strong>Description:</strong> ${workjob.description ?? 'N/A'}</p>
-        ${workjob.notes ? `<p><strong>Notes:</strong> ${workjob.notes}</p>` : ''}
-    `;
+
+    html += '<div class="workjob-title">' + (workjob.name || 'Untitled Position') + '</div>';
+    html += '<div class="workjob-info"><strong>Supervisor:</strong> ' + (workjob.supervisor || 'TBD') + '</div>';
+
+    if (workjob.supervisor_email) {
+        html += '<div class="workjob-info"><strong>Email:</strong> <a href="mailto:' + workjob.supervisor_email + '">' + workjob.supervisor_email + '</a></div>';
+    }
+    html += '<div class="workjob-info"><strong>Available Spots:</strong> ' + (workjob.spots || 'N/A') + '</div>';
+
+    if (workjob.blocks) {
+        html += '<div class="workjob-info"><strong>Blocks: </strong>' + workjob.blocks + '</div>';
+    }
+    if (workjob.selected_or_assigned) {
+        html += '<div class="workjob-info"><strong>Type:</strong> ' + workjob.selected_or_assigned + '</div>';
+    }
+    if (workjob.description) {
+        html += '<div class="workjob-description">' + workjob.description + '</div>';
+    }
+    if (workjob.notes) {
+        html += '<div class="workjob-info"><strong>Note:</strong> ' + workjob.notes + '</div>';
+    }
 
     detailContent.innerHTML = html;
     detail.style.display = "block";

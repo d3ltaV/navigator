@@ -1,10 +1,7 @@
 <html>
     <head>
         <title>{% block title %}NMH-Navigator{% endblock %}</title>
-
-        {% assets "scss_all" %}
-            <link rel="stylesheet" href="{{ ASSET_URL }}" />
-        {% endassets %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/base.css') }}">
 
         {% block extra %}{% endblock %}
     </head>
@@ -19,11 +16,6 @@
                 <a href="/cocurriculars">Cocurriculars</a>
                 <a href="/resources">Resources</a>
             </nav>
-            <div class="login-section">
-                <a href="/loginpage">
-                    <button class="login-button">Login</button>
-                </a>
-            </div>
         </header>
         {% block body %}{% endblock %}
     </body>
