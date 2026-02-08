@@ -2,6 +2,7 @@ let allClasses = [];
 let currentSort = 'name';
 let isDescending = false;
 let currentSubjectFilter = '';
+let currentDepartmentFilter = '';
 
 function loadClasses() {
     fetch('/api/search?s=classes')
@@ -9,6 +10,7 @@ function loadClasses() {
         .then(data => {
             allClasses = data;
             populateSubjectFilter();
+            populateDepartmentFilter();
             sortAndDisplay();
             updateResultsInfo(allClasses.length, allClasses.length);
         });
@@ -40,11 +42,30 @@ function populateSubjectFilter() {
     });
 }
 
+function populateDepartmentFilter() {
+    const departments = new Set();
+    allClasses.forEach(c => {
+        if (c.dpt) {
+            departments.add(c.dpt);
+        }
+    });
+
+    const sortedDepartments = Array.from(departments).sort();
+    const filterSelect = document.getElementById('departmentFilter');
+
+    sortedDepartments.forEach(dpt => {
+        const option = document.createElement('option');
+        option.value = dpt;
+        option.textContent = dpt;
+        filterSelect.appendChild(option);
+    });
+}
+
 function searchClasses(query) {
     fetch('/api/search?q=' + encodeURIComponent(query) + '&s=classes')
         .then(response => response.json())
         .then(results => {
-            const filtered = filterBySubject(results);
+            const filtered = filterByDepartment(filterBySubject(results));
             displayClasses(sortClasses(filtered));
             updateResultsInfo(filtered.length, allClasses.length);
         });
@@ -59,6 +80,13 @@ function filterBySubject(classes) {
         const subject = extractSubject(c.code);
         return subject === currentSubjectFilter;
     });
+}
+
+function filterByDepartment(classes) {
+    if (!currentDepartmentFilter) {
+        return classes;
+    }
+    return classes.filter(c => c.dpt === currentDepartmentFilter);
 }
 
 function sortClasses(classes) {
@@ -93,7 +121,7 @@ function sortClasses(classes) {
 }
 
 function sortAndDisplay() {
-    const filtered = filterBySubject(allClasses);
+    const filtered = filterByDepartment(filterBySubject(allClasses));
     const sorted = sortClasses(filtered);
     displayClasses(sorted);
     updateResultsInfo(filtered.length, allClasses.length);
@@ -132,7 +160,7 @@ function displayClasses(classes) {
             }
 
             if (c.ncaa) {
-                html += '<button type="button" class="n">NCAA</button>'; 
+                html += '<button type="button" class="n">NCAA</button>';
             }
             html += '</div>';
 
@@ -174,6 +202,11 @@ function handleSubjectFilter() {
     handleSearch();
 }
 
+function handleDepartmentFilter() {
+    currentDepartmentFilter = document.getElementById('departmentFilter').value;
+    handleSearch();
+}
+
 function handleSort() {
     currentSort = document.getElementById('sortSelect').value;
     isDescending = document.getElementById('descendingCheck').checked;
@@ -184,6 +217,7 @@ function handleSort() {
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('searchBox').addEventListener('input', handleSearch);
     document.getElementById('subjectFilter').addEventListener('change', handleSubjectFilter);
+    document.getElementById('departmentFilter').addEventListener('change', handleDepartmentFilter);
     document.getElementById('sortSelect').addEventListener('change', handleSort);
     document.getElementById('descendingCheck').addEventListener('change', handleSort);
     loadClasses();
