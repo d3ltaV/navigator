@@ -34,7 +34,8 @@ async function initMap() {
         restriction: {
             latLngBounds: bounds,
             strictBounds: true
-        }
+        },
+        minZoom: 16.8
     });
 
     locations.forEach(({ title, position }, i) => {
@@ -53,7 +54,7 @@ async function initMap() {
             background: "#ea665a",
             color: "#420505",
             fontWeight: "600",
-            fontSize: "13px",
+            fontSize: "1.7vh",
             lineHeight: "1",
             borderRadius: "6px"
 
