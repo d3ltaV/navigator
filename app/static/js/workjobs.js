@@ -32,7 +32,6 @@ function displayWorkjobs(workjobs) {
         const job = workjobs[i];
         html += '<div class="workjob-card">';
         html += '<div class="workjob-title">' + (job.name || 'Untitled Position') + '</div>';
-        // html += '<span class="workjob-location">' + (job.location || 'Location TBD') + '</span>';
 
         html += '<div class = tags>'; 
         html += '<button type="button">' + (job.location || 'Location TBD') + '</button>'; 
@@ -48,6 +47,10 @@ function displayWorkjobs(workjobs) {
 
         if (job.blocks) {
             html += '<div class="workjob-info"><strong>Blocks: </strong>' + job.blocks + '</div>';
+        }
+
+        if (job.selected_or_assigned) {
+            html += '<div class="workjob-info"><strong>Type:</strong> ' + job.selected_or_assigned + '</div>';
         }
 
         if (job.description) {

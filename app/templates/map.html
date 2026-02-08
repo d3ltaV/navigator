@@ -14,12 +14,12 @@
     <div class="map-container">
         <gmp-map zoom="16" center="42.668, -72.4838" map-id="ilovematcha"></gmp-map>
         <div id="popup" class="popup">
-            <div id="popup-content"></div>
-            <button id="popup-close">Close</button>
+            <div id="popup-content" class="popup-content"></div>
+            <button id="popup-close" class="close">Close</button>
         </div>
         <div id="workjob-detail" class="workjob-detail">
             <div id="workjob-detail-content"></div>
-            <button id="workjob-detail-close">Close</button>
+            <button id="workjob-detail-close" class="close2">Close</button>
         </div>
     </div>
     <script type="module" src="{{ url_for('static', filename='js/map.js') }}"></script>
