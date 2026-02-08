@@ -35,7 +35,7 @@ async function initMap() {
             latLngBounds: bounds,
             strictBounds: true
         },
-        minZoom: 16.8
+        minZoom: 16.3
     });
 
     locations.forEach(({ title, position }, i) => {
