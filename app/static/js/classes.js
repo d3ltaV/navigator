@@ -126,7 +126,7 @@ function displayClasses(classes) {
             }
 
             if (c.ncaa) {
-                html += '<button type="button">NCAA</button>'; 
+                html += '<button type="button" class="n">NCAA</button>'; 
             }
             html += '</div>'; 
 

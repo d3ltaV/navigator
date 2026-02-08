@@ -135,6 +135,10 @@
                     transition: all 0.2s ease;
                 }
 
+                .n {
+                    background-color: #c1dcc7 ;
+                    color: #1f3c25;
+                }
                 button:hover {
                     transform: translateY(-1px);
                 }

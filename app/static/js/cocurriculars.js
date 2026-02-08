@@ -32,8 +32,12 @@ function displayCocurriculars(cocurriculars) {
         const cocurricular = cocurriculars[i];
         html += '<div class="cocurricular-card">';
         html += '<div class="cocurricular-title">' + (cocurricular.name || 'Untitled Position') + '</div>';
-        html += '<div class="cocurricular-info"><strong>Category:</strong> ' + (cocurricular.category || 'Category NA') + '</div>';
-        html += '<div class="cocurricular-info"><strong>Season:</strong> ' + (cocurricular.season || 'Season NA') + '</div>';
+
+        html += '<div class = tags>'; 
+        html += '<button type="button">' + cocurricular.category + '</button>'; 
+        html += '<button type="button" class="n">' + cocurricular.season + '</button>'; 
+        html += '</div>';
+
         html += '<div class="cocurricular-info"><strong>Prerequisites:</strong> ' + (cocurricular.prerequisites || 'Prerequisites NA') + '</div>';
         html += '<div class="cocurricular-info"><strong>Location:</strong> ' + (cocurricular.location || 'TBD') + '</div>';
         html += '<div class="cocurricular-info"><strong>Schedule:</strong> ' + (cocurricular.schedule || 'TBD') + '</div>';
