@@ -68,14 +68,23 @@ function sortClasses(classes) {
         case 'name':
             sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
             break;
+        case 'code':
+            sorted.sort((a, b) => (a.code || '').localeCompare(b.code || ''));
+            break;
+        case 'credit':
+            sorted.sort((a, b) => {
+                const creditA = parseFloat(a.credit) || 0;
+                const creditB = parseFloat(b.credit) || 0;
+                return creditA - creditB;
+            });
+            break;
+        case 'ncaa':
+            sorted.sort((a, b) => {
+                return (b.ncaa ? 1 : 0) - (a.ncaa ? 1 : 0);
+            });
+            break;
         case 'bnc':
             sorted.sort((a, b) => (a.bnc || '').localeCompare(b.bnc || ''));
-            break;
-        case 'semester':
-            sorted.sort((a, b) => (a.semester || '').localeCompare(b.semester || ''));
-            break;
-        case 'room':
-            sorted.sort((a, b) => (a.room || '').localeCompare(b.room || ''));
             break;
     }
 
@@ -108,27 +117,27 @@ function displayClasses(classes) {
             html += '<div class="class-card">';
             html += '<div class="class-title">' + (c.name || 'Untitled Class') + '</div>';
 
-            html += '<div class = tags>'; 
+            html += '<div class = tags>';
             if (c.nine) {
-                html += '<button type="button">9th</button>'; 
+                html += '<button type="button">9th</button>';
             }
             if (c.ten) {
-                html += '<button type="button">10th</button>'; 
+                html += '<button type="button">10th</button>';
             }
             if (c.eleven) {
-                html += '<button type="button">11th</button>'; 
+                html += '<button type="button">11th</button>';
             }
             if (c.twelve) {
-                html += '<button type="button">12th</button>'; 
+                html += '<button type="button">12th</button>';
             }
             if (c.pg) {
-                html += '<button type="button">PG</button>'; 
+                html += '<button type="button">PG</button>';
             }
 
             if (c.ncaa) {
                 html += '<button type="button" class="n">NCAA</button>'; 
             }
-            html += '</div>'; 
+            html += '</div>';
 
             html += '<div class="class-info"><strong>Class Code: </strong>' + (c.code || 'unknown') + '</div>';
             html += '<div class="class-info"><strong>Credit: </strong>' + (c.credit || 'unknown') + '</div>';
@@ -138,7 +147,7 @@ function displayClasses(classes) {
 
             html += '<div class="class-desc">' + (c.desc || 'unknown') + '</div>';
         }
-        const safeName = encodeURIComponent(c.name); 
+        const safeName = encodeURIComponent(c.name);
         html += '</div>';
     }
 
