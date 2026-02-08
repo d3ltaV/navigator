@@ -61,4 +61,4 @@ class CocurricularList:
 
 
 COCURRICULARS = CocurricularList.getCocurriculars()
-CocurricularList.printClasses()
+# CocurricularList.printClasses()

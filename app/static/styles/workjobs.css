@@ -13,152 +13,127 @@
     background-color: var(--mg);
 }
 
+.workjobs-container {
 
-/* ================= BODY WRAPPER ================= */
-body {
+    max-width: 80vw;
+    margin: 0 auto;
+    
+    .workjobs-header {
+        padding: 4vh;
+        border: none;
+        margin: 5vh 0vh;
+        background: linear-gradient(180deg, var(--bb), var(--mg)); 
 
-    /* ================= CONTAINER RESET ================= */
-    .workjobs-container {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-
-        * {
-            box-sizing: border-box;
+        h1 {
+            font-weight: 700;
+            color: var(--navy);
+            font-size: 2.8vh;
+            margin: 0 0 20px 0;
         }
     }
 
+    .search-container {
+        margin-bottom: 4vh;
 
-    /* ================= PAGE BODY ================= */
-    .workjobs-body {
-        background-color: #ffffff;
-        padding: 20px;
-
-        .container {
-            max-width: 50vw;
-            margin: 0 auto;
-        }
-
-
-        /* ================= HEADER ================= */
-        .workjobs-header {
-            background-color: #ededed;
-            padding: 20px;
+        .search-box {
+            width: 100%;
+            padding: 1.7vh 1.5vw;
+            font-size: 1.7vh;
             border: none;
-            margin-bottom: 20px;
+            outline: none;
+        }
 
-            h1 {
+    }
+
+    .results-info {
+        padding: 10px 0;
+        color: #333;
+        font-size: 14px;
+    }
+
+    .workjobs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(20vw, 1fr));
+        gap: 3vh;
+
+        .workjob-card {
+            background-color: var(--w);
+            border-radius: 8px;
+            padding: 4vh;
+            
+
+            .workjob-title {
+                color: var(--dg);
+                font-size: 2vh;
                 font-weight: 700;
-                color: var(--navy);
-                font-size: 1.5rem;
-                margin: 0 0 20px 0;
-            }
-        }
-
-
-        /* ================= SEARCH ================= */
-        .search-container {
-            margin-bottom: 20px;
-
-            .search-box {
-                width: 100%;
-                padding: 8px;
-                font-size: 14px;
-                border: 1px solid #000;
-                outline: none;
+                margin-bottom: 2vh;
             }
 
-            .search-box:focus {
-                border: 2px solid #000;
+            .tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.7vw;
+                margin: 10px 0 14px 0;
+
+                button {
+                    background-color: var(--bb2);
+                    color: var(--navy);
+                    border: none;
+                    padding: 1vh 1.2vh;
+                    font-size: 1.5vh;
+                    font-weight: 600;
+                    border-radius: 999px; 
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+
+                button:hover {
+                    transform: translateY(-1px);
+                }
+
+                button:active {
+                    transform: translateY(0);
+                    opacity: 0.9;
+                }
             }
-        }
 
+            .workjob-info {
+                margin: 1.25vh 0;
+                color: var(--text);
+                font-size: 1.7vh;
 
-        /* ================= RESULTS ================= */
-        .results-info {
-            padding: 10px 0;
-            color: #333;
-            font-size: 14px;
-        }
-
-
-        /* ================= GRID ================= */
-        .workjobs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1vw;
-
-
-            /* ---------- CARD ---------- */
-            .workjob-card {
-                background-color: #fff;
-                padding: 15px;
-                border: 1px solid #000;
-
-                .workjob-title {
-                    color: #000;
-                    font-size: 16px;
-                    font-weight: bold;
-                    margin-bottom: 10px;
+                strong {
+                    color: var(--dm);
                 }
-
-                .workjob-location {
-                    color: #000;
-                    font-size: 14px;
-                    margin-bottom: 10px;
-                    display: inline-block;
-                    padding: 2px 6px;
-                    background-color: #e0e0e0;
-                    border: 1px solid #999;
-                }
-
-                .workjob-info {
-                    margin: 8px 0;
-                    color: #000;
-                    font-size: 14px;
-
-                    strong {
-                        color: #000;
-                    }
-                }
-
-                .workjob-description {
-                    margin-top: 12px;
-                    padding-top: 12px;
-                    border-top: 1px solid #ccc;
-                    color: #000;
-                    font-size: 14px;
-                    line-height: 1.5;
-                }
-
-                .workjob-blocks {
-                    margin-top: 8px;
-                    color: #000;
-                    font-size: 13px;
-                }
-                
             }
-        }
 
-
-        /* ================= STATES ================= */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #333;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 60px 20px;
-            color: #333;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-
-            h2 {
-                margin-bottom: 10px;
-                color: #666;
+            .workjob-description {
+                margin-top: 2vh;
+                padding-top: 2vh;
+                border-top: 1px solid var(--navy);
+                color: var(--text);
+                font-size: 1.7vh;
             }
+            
+        }
+    }
+
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: #333;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 60px 20px;
+        color: #333;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+
+        h2 {
+            margin-bottom: 10px;
+            color: #666;
         }
     }
 }

@@ -133,10 +133,10 @@ function displayClasses(classes) {
             html += '<div class="class-info"><strong>Class Code: </strong>' + (c.code || 'unknown') + '</div>';
             html += '<div class="class-info"><strong>Credit: </strong>' + (c.credit || 'unknown') + '</div>';
 
-            html += '<div class="class-info">Department: ' + (c.dpt || 'unknown') + '</div>';
-            html += '<div class="class-info">Prerequisites: ' + (c.prereq || 'None') + '</div>';
+            html += '<div class="class-info"><strong>Department: </strong>' + (c.dpt || 'unknown') + '</div>';
+            html += '<div class="class-info"><strong>Prerequisites: </strong>' + (c.prereq || 'None') + '</div>';
 
-            html += '<div class="class-info">Description: ' + (c.desc || 'unknown') + '</div>';
+            html += '<div class="class-desc">' + (c.desc || 'unknown') + '</div>';
         }
         const safeName = encodeURIComponent(c.name); 
         html += '</div>';
