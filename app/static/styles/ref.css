@@ -19,6 +19,8 @@ body {
     font-family: Arial, sans-serif;
 
     .resources-container {
+        margin-top: 9vh;
+
         .resources-header {
             background: linear-gradient(180deg, var(--bb) 0%, var(--mg) 96%); 
 
@@ -85,5 +87,13 @@ body {
                 }
             }
         }
+
+        footer {
+            margin-top: 5vh;       
+            text-align: center;
+            font-size: 1.7vh;
+            color: #666;
+        }
+
     }
 }
