@@ -9,6 +9,7 @@ load_dotenv()
 from utils.workjobs import WORKJOBS
 from utils.classes import CLASSES #format: list of [Class objects]
 from utils.cocurriculars import COCURRICULARS #format: list of [Cocurricular objects]
+from utils.clubs import CLUBS
 
 BUILDINGS = ["Bolger", "Alumni Hall", "Schauffler Library", "Gym", "Gilder", "Various Locations", "RAC",
              "Health Center", "Communications Office", "Early Childhood Center", "Farm", "Service Learning",
@@ -35,6 +36,9 @@ def cocurricular_view():
 def workjob_view():
     return render_template("workjobs.html", buildings=BUILDINGS)
 
+@app.route("/clubs")
+def club_view():
+    return render_template("clubs.html")
 
 @app.route("/classes")
 def class_view():
@@ -91,6 +95,16 @@ def api_search():
 
             if query in searchable_text:
                 results.append(co_dict)
+        return jsonify(results)
+    elif searchType == 'clubs':
+        if not query:
+            return jsonify([c.to_dict() for c in CLUBS])
+        results = []
+        for c in CLUBS:
+            d = c.to_dict()
+            searchable_text = f"{d.get('Name of Club', '')} {d.get('Type of Club', '')} {d.get('Description of Club', '')}".lower()
+            if query in searchable_text:
+                results.append(d)
         return jsonify(results)
     else:
         return jsonify({"error": "somethings broken"}), 400
