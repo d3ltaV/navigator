@@ -10,7 +10,7 @@
 Interactive campus map for navigating buildings and facilities.
 
 <p align="center">
-  <img src="./gifs/map_gif.gif" width="700">
+  <img src="./gifs/map_gif.gif" width="500">
 </p>
 
 ---
@@ -19,7 +19,7 @@ Interactive campus map for navigating buildings and facilities.
 Browse and search the course catalog with detailed information on each offering.
 
 <p align="center">
-  <img src="./gifs/class_gif.gif" width="700">
+  <img src="./gifs/class_gif.gif" width="500">
 </p>
 
 ---
@@ -28,7 +28,7 @@ Browse and search the course catalog with detailed information on each offering.
 Explore student-run clubs and organizations on campus.
 
 <p align="center">
-  <img src="./gifs/clubs_gif.gif" width="700">
+  <img src="./gifs/clubs_gif.gif" width="500">
 </p>
 
 ---
@@ -37,7 +37,7 @@ Explore student-run clubs and organizations on campus.
 Find cocurricular programs and activities available to students.
 
 <p align="center">
-  <img src="./gifs/cocur_gif.gif" width="700">
+  <img src="./gifs/cocur_gif.gif" width="500">
 </p>
 
 ---
@@ -46,7 +46,7 @@ Find cocurricular programs and activities available to students.
 Browse available campus workjob assignments.
 
 <p align="center">
-  <img src="./gifs/workjob_gif.gif" width="700">
+  <img src="./gifs/workjob_gif.gif" width="500">
 </p>
 
 ---
