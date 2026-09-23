@@ -1,4 +1,4 @@
-# NMH Navigator
+# NMH Navigator (gifs may take a few seconds to load)
 
 **Navigator** is a student-built web application that aggregates classes, clubs, workjobs, and cocurriculars at Northfield Mount Hermon School into a single searchable platform.
 
