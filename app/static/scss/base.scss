@@ -1,59 +1,310 @@
-$navy: #003366;
-$maroon: #8B0000;
+// Design tokens live as CSS custom properties so every page stylesheet
+// (each compiled separately by libsass) can share them.
+:root {
+    --ink: #1b1a2b;
+    --ink-soft: #57566a;
+    // Pale lavender-cream page base.
+    --paper: #f4f2f8;
+    --cream: #faf7f2;
+    --card: rgba(255, 255, 255, 0.62);
+    // Pig-natural rose and soft glass sky.
+    --pink: #e8bfc8;
+    --pink-soft: #f7e6ea;
+    --sky: #cddaef;
+    --sky-soft: #eaf1fc;
+    // Muted warm gold, used sparingly.
+    --gold: #d4b877;
+    // Dark NMH shades for text and buttons; --navy-light is used for button hovers.
+    --navy: #1a2f5c;
+    --navy-light: #3f66b8;
+    --crimson: #7a1e38;
+    --line: 1px solid rgba(27, 26, 43, 0.45);
+    // Single font: Inter for everything.
+    --font-display: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --header-h: 68px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Arial', sans-serif;
+    font-family: var(--font-body);
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
 }
 
+h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+em {
+    font-style: italic;
+    color: var(--crimson);
+}
+
+::selection { background: var(--pink); color: var(--ink); }
+
+// ---------- Painterly NMH scene background ----------
+// A layered illustrated scene lives fixed in the background; a soft haze reads
+// under all content so text/cards stay legible; autumn leaves drift on top.
+:root {
+    --px: 0;
+    --py: 0;
+    --scroll: 0;
+}
+
+.scene-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.scene-bg__art {
+    position: absolute;
+    inset: 0;
+    // Matching lavender bleeds into any tiny gap and softens the crop.
+    background: linear-gradient(180deg, #d6cde0 0%, #d1c3d4 55%, #6a5c58 100%);
+    animation: scene-pan 60s ease-in-out infinite alternate;
+
+    .scene,
+    .scene-img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        // Fill the viewport, biased to keep both sky (top) and grass (bottom) with
+        // equal crop on either edge if needed.
+        object-fit: cover;
+        object-position: center center;
+    }
+}
+
+// Vertical soft-lavender haze so the middle band (where text sits) stays readable
+// while keeping the twilight mood of the painting behind.
+.scene-bg__haze {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(232, 220, 240, 0.04) 0%,
+        rgba(244, 236, 250, 0.35) 32%,
+        rgba(244, 236, 250, 0.35) 68%,
+        rgba(232, 220, 240, 0.04) 100%);
+}
+
+@keyframes scene-pan {
+    from { transform: translate3d(0, 0, 0) scale(1.03); }
+    to   { transform: translate3d(-2%, 1%, 0) scale(1.06); }
+}
+
+// ---------- Falling cherry-blossom petals ----------
+// Small five-petal shapes drift from top to bottom with rotation and gentle sway.
+// Pink/plum tints match the twilight sky in the campus painting behind.
+.scene-bg__leaves {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.leaf {
+    position: absolute;
+    top: -40px;
+    width: 22px;
+    height: 22px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: 0;
+    animation:
+        leaf-fall var(--fall-dur, 18s) linear var(--fall-delay, 0s) infinite,
+        leaf-sway var(--sway-dur, 4s) ease-in-out var(--sway-delay, 0s) infinite alternate;
+    will-change: transform, opacity;
+
+    &--1 { left: 6%; --fall-dur: 16s; --fall-delay: -2s; --sway-dur: 3.6s; --sway-shift: 34px; width: 22px; height: 22px;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+    &--2 { left: 18%; --fall-dur: 21s; --fall-delay: -6s; --sway-dur: 4.2s; --sway-shift: 26px; width: 18px; height: 18px;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f2a3b8'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+    &--3 { left: 32%; --fall-dur: 19s; --fall-delay: -12s; --sway-dur: 3.2s; --sway-shift: 40px; width: 24px; height: 24px;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23d8a6c8'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+    &--4 { left: 46%; --fall-dur: 24s; --fall-delay: -4s; --sway-dur: 5s; --sway-shift: 22px; width: 20px; height: 20px;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+    &--5 { left: 58%; --fall-dur: 17s; --fall-delay: -10s; --sway-dur: 3.8s; --sway-shift: 30px; width: 16px; height: 16px;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f2a3b8'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+    &--6 { left: 68%; --fall-dur: 22s; --fall-delay: -8s; --sway-dur: 4.6s; --sway-shift: 28px; width: 22px; height: 22px;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23e08aa6'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+    &--7 { left: 78%; --fall-dur: 20s; --fall-delay: -15s; --sway-dur: 3.4s; --sway-shift: 34px; width: 18px; height: 18px;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23d8a6c8'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+    &--8 { left: 88%; --fall-dur: 23s; --fall-delay: -3s; --sway-dur: 4.4s; --sway-shift: 24px; width: 20px; height: 20px;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+    &--9 { left: 12%; --fall-dur: 25s; --fall-delay: -18s; --sway-dur: 5.2s; --sway-shift: 32px; width: 14px; height: 14px;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f2a3b8'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+    &--10 { left: 92%; --fall-dur: 18s; --fall-delay: -14s; --sway-dur: 3s; --sway-shift: 26px; width: 16px; height: 16px;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23e08aa6'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+}
+
+@keyframes leaf-fall {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    8%   { opacity: 0.9; }
+    92%  { opacity: 0.9; }
+    100% { transform: translate(0, 108vh) rotate(540deg); opacity: 0; }
+}
+
+@keyframes leaf-sway {
+    from { margin-left: calc(var(--sway-shift, 30px) * -0.5); }
+    to   { margin-left: calc(var(--sway-shift, 30px) * 0.5); }
+}
+
+@media (max-width: 720px) {
+    .leaf--3, .leaf--5, .leaf--7, .leaf--9 { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .leaf { display: none; }
+    .scene-bg__art { animation: none; }
+}
+
+
+// ---------- Header ----------
 .header {
-    display: flex;
-    flex-direction: column;
-    max-width: 100%;
-    border-bottom: 1px solid black;
-    padding: 2vh 1vw;
-    background-color: white;
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 100;
+    display: flex;
     align-items: center;
+    gap: 24px;
+    min-height: var(--header-h);
+    padding: 10px clamp(16px, 3vw, 40px);
+    // Barely-there translucent panel separated from the page by a single hair line.
+    background: rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(27, 26, 43, 0.18);
 }
 
-.title {
-    margin: 0 0 10px 0;
-    padding: 0;
-    font-size: 24px;
-    text-align: center;
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--ink);
+    flex-shrink: 0;
+
+    &__pig {
+        height: 44px;
+        width: auto;
+    }
+
+    &__name {
+        font-family: var(--font-body);
+        font-weight: 600;
+        font-size: 1.1rem;
+        letter-spacing: -0.02em;
+        color: var(--navy);
+    }
 }
 
 .nav-bar {
     display: flex;
-    flex-direction: row;
-    gap: 20px;
+    gap: 4px;
+    margin-left: auto;
 
     a {
-        text-decoration: underline;
-        color: $navy;
+        padding: 8px 12px;
+        border-bottom: 2px solid transparent;
+        font-weight: 500;
+        font-size: 0.92rem;
+        text-decoration: none;
+        color: var(--ink-soft);
+        transition: color 0.15s, border-color 0.15s, background 0.15s, backdrop-filter 0.15s;
 
+        // Hover only tints the pill — the underline is reserved for the active page.
         &:hover {
-            color: $maroon;
+            color: var(--navy);
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        &.active {
+            color: var(--ink);
+            border-bottom-color: var(--navy);
         }
     }
 }
 
-.login-section {
-    position: absolute;
-   .login-button {
-        padding: 1vh 2vw;
-        border-radius: 8px;
-        border: none;
-        background-color: $navy;
-        color: white;
-        &:hover {
-            background-color: $maroon;
-        }
-   } 
-   
-   top: 2.5vh; 
-   right: 4vw;
+// Shared flat button. Primary is solid navy, no border; hover fills to translucent white.
+.btn {
+    display: inline-block;
+    padding: 13px 25px;
+    border: 1px solid transparent;
+    background: var(--navy);
+    color: #fff;
+    font: 500 0.95rem var(--font-body);
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.22);
+        backdrop-filter: blur(14px) saturate(1.05);
+        -webkit-backdrop-filter: blur(14px) saturate(1.05);
+        color: var(--ink);
+        border-color: transparent;
+    }
+}
+
+// Ghost button — only this variant keeps a visible border.
+.btn--ghost {
+    padding: 12px 24px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--navy);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.22);
+        backdrop-filter: blur(14px) saturate(1.05);
+        -webkit-backdrop-filter: blur(14px) saturate(1.05);
+        color: var(--ink);
+        border-color: var(--navy);
+    }
+}
+
+@media (max-width: 860px) {
+    .header { flex-wrap: wrap; gap: 4px 16px; padding-bottom: 4px; }
+    .nav-bar {
+        width: 100%;
+        margin: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+        &::-webkit-scrollbar { display: none; }
+        a { white-space: nowrap; }
+    }
+    .brand__pig { height: 38px; }
+}
+
+.page { position: relative; }
+
+// Fixed byline pinned to the bottom of the viewport regardless of scroll.
+.page-byline {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 8px;
+    z-index: 50;
+    text-align: center;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.7);
+    pointer-events: none;
+    text-transform: lowercase;
+
+    &__heart {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.75rem;
+    }
 }

@@ -1,6 +1,13 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
-        <title>{% block title %}NMH-Navigator{% endblock %}</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}NMH Navigator{% endblock %}</title>
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 
         {% assets "scss_all" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}" />
@@ -9,22 +16,61 @@
         {% block extra %}{% endblock %}
     </head>
     <body>
+        {% include "_background.html" %}
+
+        {% set nav_links = [
+            ("/", "Home"),
+            ("/map", "Campus Map"),
+            ("/classes", "Classes"),
+            ("/workjobs", "Workjobs"),
+            ("/cocurriculars", "Cocurriculars"),
+            ("/clubs", "Clubs"),
+            ("/resources", "Resources"),
+        ] %}
         <header class="header">
-            <h1 class="title">NMH-Navigator</h1>
+            <a href="/" class="brand">
+                <img src="{{ url_for('static', filename='images/pig.png') }}" alt="" class="brand__pig">
+                <span class="brand__name">NMH Navigator</span>
+            </a>
             <nav class="nav-bar">
-                <a href="/">Home</a>
-                <a href="/map">Campus Map</a>
-                <a href="/classes">Classes</a>
-                <a href="/workjobs">Workjobs</a>
-                <a href="/cocurriculars">Cocurriculars</a>
-                <a href="/resources">Resources</a>
+                {% for href, label in nav_links %}
+                    <a href="{{ href }}" class="{{ 'active' if request.path == href }}">{{ label }}</a>
+                {% endfor %}
             </nav>
-            <div class="login-section">
-                <a href="/loginpage">
-                    <button class="login-button">Login</button>
-                </a>
-            </div>
         </header>
-        {% block body %}{% endblock %}
+        <main class="page">
+            {% block body %}{% endblock %}
+        </main>
+
+        <footer class="page-byline" aria-hidden="true">
+            built by Joelle &rsquo;27 &amp; Lorcan &rsquo;26 <span class="page-byline__heart">&lt;3</span>
+        </footer>
+
+        <script>
+            // Pointer + scroll parallax on the background. Sets CSS vars --px, --py, --scroll
+            // that the shard layers use to shift at different depths, giving the page a 3D feel.
+            (function () {
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                var doc = document.documentElement;
+                var moveRaf = null, scrollRaf = null;
+                document.addEventListener('pointermove', function (e) {
+                    if (moveRaf) return;
+                    moveRaf = requestAnimationFrame(function () {
+                        var px = (e.clientX / window.innerWidth - 0.5) * 2;
+                        var py = (e.clientY / window.innerHeight - 0.5) * 2;
+                        doc.style.setProperty('--px', px.toFixed(3));
+                        doc.style.setProperty('--py', py.toFixed(3));
+                        moveRaf = null;
+                    });
+                }, { passive: true });
+                window.addEventListener('scroll', function () {
+                    if (scrollRaf) return;
+                    scrollRaf = requestAnimationFrame(function () {
+                        doc.style.setProperty('--scroll', (window.scrollY / 100).toFixed(2));
+                        scrollRaf = null;
+                    });
+                }, { passive: true });
+            })();
+        </script>
     </body>
 </html>

@@ -175,11 +175,11 @@ python app/main.py
 ```
 Users should see something similar to:
 ```bash
-* Running on http://127.0.0.1:5000/
+* Running on http://127.0.0.1:3000/
 ```
-Works in both port 5000 and others ports as well. 
+Runs on port 3000 (set in `app/main.py`). 
 
 ### 6. Open the App in Your Browser
 Visit:
-http://127.0.0.1:5000
+http://127.0.0.1:3000
 (Or adjust to specific port)

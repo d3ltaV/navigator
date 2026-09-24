@@ -1,0 +1,294 @@
+// Loaded last in the bundle: restyles the shared catalog / map / resources
+// components in the flat, sharp-cornered look without touching page logic.
+
+// ---------- Catalog pages (classes, workjobs, cocurriculars) ----------
+.classes-body, .workjobs-body, .cocurriculars-body {
+    background: transparent;
+    padding: clamp(24px, 5vh, 48px) clamp(16px, 3vw, 32px) 64px;
+}
+
+.container {
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.classes-header, .workjobs-header, .cocurriculars-header {
+    padding: 32px;
+    margin-bottom: 24px;
+    border: none;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(16px) saturate(1.1);
+    -webkit-backdrop-filter: blur(16px) saturate(1.1);
+
+    h1 {
+        font-family: var(--font-display);
+        font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+        color: var(--ink);
+        margin: 0 0 18px;
+    }
+}
+
+.search-container { margin-bottom: 14px; }
+
+.search-box {
+    width: 100%;
+    padding: 13px 16px;
+    border: var(--line);
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.8);
+    font: 500 1rem var(--font-body);
+    color: var(--ink);
+    outline: none;
+
+    &:focus {
+        border: var(--line);
+        background: #fff;
+        outline: 3px solid var(--sky);
+        outline-offset: 0;
+    }
+}
+
+.filter-sort-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    align-items: center;
+
+    label { font-weight: 500; font-size: 0.9rem; }
+}
+
+.filter-container, .sort-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.subject-filter, .sort-select {
+    padding: 8px 12px;
+    border: var(--line);
+    border-radius: 0;
+    background: #fff;
+    color: var(--ink);
+    font: 500 0.9rem var(--font-body);
+    cursor: pointer;
+
+    &:focus { outline: 3px solid var(--sky); outline-offset: 0; }
+}
+
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    input { accent-color: var(--navy); width: 16px; height: 16px; }
+}
+
+.results-info {
+    padding: 12px 0 0;
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+}
+
+.classes-grid, .workjobs-grid, .cocurriculars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(unquote("min(100%, 300px)"), 1fr));
+    gap: 16px;
+}
+
+// One flat glassy card for every catalog — no borders, no top stripe, just soft glass.
+.class-card, .workjob-card, .cocurricular-card {
+    display: flex;
+    flex-direction: column;
+    padding: 22px 20px 20px;
+    border: none;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    transition: background 0.25s ease;
+
+    &:hover { background: rgba(255, 255, 255, 0.82); }
+}
+
+.class-title, .workjob-title, .cocurricular-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--ink);
+    margin: 0 0 10px;
+}
+
+// Rectangular translucent-white tag — very light, readable on the painting behind.
+.workjob-location, .cocurricular-category, .tags button {
+    align-self: flex-start;
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--navy);
+    font: 600 0.72rem/1.3 var(--font-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: default;
+}
+
+.tags {
+    margin-bottom: 8px;
+}
+
+.class-info, .workjob-info, .cocurricular-info {
+    margin: 4px 0;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    line-height: 1.45;
+
+    strong { color: var(--ink); font-weight: 600; }
+    a { color: var(--navy); font-weight: 500; }
+}
+
+.workjob-description {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(22, 22, 26, 0.18);
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.workjob-blocks { color: var(--ink-soft); font-size: 0.85rem; }
+
+.loading, .no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--ink-soft);
+}
+
+.no-results {
+    border: 1.5px dashed var(--ink);
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    h2 { font-family: var(--font-display); color: var(--ink); margin: 0 0 8px; }
+}
+
+// ---------- Map ----------
+.map-container {
+    padding: clamp(12px, 2vw, 24px);
+}
+
+gmp-map {
+    display: block;
+    width: 100%;
+    height: calc(100vh - var(--header-h) - 48px);
+    min-height: 420px;
+    border: var(--line);
+}
+
+.popup, .workjob-detail {
+    border: var(--line);
+    border-radius: 0;
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: none;
+    font-family: var(--font-body);
+    line-height: 1.5;
+}
+
+#popup button, #workjob-detail-close {
+    padding: 8px 16px;
+    border: var(--line);
+    border-radius: 0;
+    background: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    &:hover { background: var(--gold); }
+}
+
+.workjob-link {
+    color: var(--navy);
+    font-weight: 500;
+    &:hover { color: var(--ink); }
+}
+
+.workjob-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.workjob-tab {
+    padding: 6px 12px;
+    border: var(--line);
+    border-radius: 0;
+    background: #fff;
+    font: 500 0.8rem var(--font-body);
+    cursor: pointer;
+    &.active, &:hover { background: var(--gold); }
+}
+
+// ---------- Resources ----------
+.resources-header {
+    max-width: 1120px;
+    margin: clamp(24px, 5vh, 48px) auto 0;
+    padding: 0 clamp(16px, 3vw, 32px);
+    background: transparent;
+    text-align: left;
+
+    h1 {
+        color: var(--ink);
+        font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    }
+}
+
+.resources-section { max-width: 1120px; margin: 24px auto; padding: 0 clamp(16px, 3vw, 32px); }
+
+.resources-section-title {
+    display: inline-block;
+    text-align: left;
+    margin: 28px 0 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.resources-grid {
+    grid-template-columns: repeat(auto-fill, minmax(unquote("min(100%, 300px)"), 1fr));
+    gap: 16px;
+    padding: 16px 0;
+    max-width: none;
+}
+
+.resource-card {
+    padding: 22px 20px 20px;
+    border: none;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    transition: background 0.25s ease;
+
+    &:hover { background: rgba(255, 255, 255, 0.82); }
+}
+
+.resource-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+
+    &::after { content: ' ↗'; color: var(--navy); }
+    &:hover { color: var(--navy); }
+}
+
+.resource-description { color: var(--ink-soft); font-size: 0.9rem; }
+
+@media (max-width: 600px) {
+    .popup { left: 16px; right: 16px; bottom: 16px; max-width: none; }
+    .workjob-detail { width: calc(100vw - 32px); }
+}

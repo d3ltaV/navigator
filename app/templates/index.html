@@ -1,24 +1,57 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}NMH Navigator — Hogger News{% endblock %}
 
 {% block body %}
-<div class="page-center">
-  <div class="home-container">
-      <h1>Welcome to NMH-Navigator</h1>
-      <p>Your guide to navigating the campus and finding workjobs.</p>
+<section class="hero">
+    <div class="hero__text">
+        <p class="hero__eyebrow"><span class="hero__dot"></span>Hogger News · for students, by students</p>
+        <h1 class="hero__title">Find your way<br>around <em>NMH</em>.</h1>
+        <div class="hero__cta">
+            <a href="/map" class="btn">Explore the map</a>
+            <a href="/classes" class="btn btn--ghost">Browse classes</a>
+        </div>
+    </div>
 
-      <div class="guide">
-          <p class="desc">Here’s what you can do with NMH-Navigator:</p>
-          <ul>
-              <li>Explore all campus workjobs by clicking on each building in the map view!</li>
-              <li>View a catalog of classes, cocurriculars, and workjobs</li>
-              <li>Search for opportunities through the search functions in each catalog page</li>
-              <li>Filter through classes based on subject, code, etc.</li>
-              <li>View and add reviews for each class, workjob, and cocurricular if you are logged into an NMH account</li>
-              <li>View more important campus resources, such as Hogger News live!</li>
-          </ul>
-      </div>
-  </div>
-</div>
+    <div class="hero__art">
+        <span class="hero__panel"></span>
+        <img src="{{ url_for('static', filename='images/pig.png') }}" alt="The Hogger pig reading Hogger News" class="hero__pig">
+    </div>
+</section>
+
+<section class="features">
+    <p class="features__label">The Navigator</p>
+    <div class="features__grid">
+        <a href="/map" class="feature">
+            <span class="feature__num">01</span>
+            <h3>Campus map</h3>
+            <p>Click any building to see the workjobs based there.</p>
+        </a>
+        <a href="/classes" class="feature">
+            <span class="feature__num">02</span>
+            <h3>Classes</h3>
+            <p>Search, filter by subject and sort the whole catalog.</p>
+        </a>
+        <a href="/workjobs" class="feature">
+            <span class="feature__num">03</span>
+            <h3>Workjobs</h3>
+            <p>Every job, supervisor, block and open spot.</p>
+        </a>
+        <a href="/cocurriculars" class="feature">
+            <span class="feature__num">04</span>
+            <h3>Cocurriculars</h3>
+            <p>PEs and seasonal activities by category.</p>
+        </a>
+        <a href="/clubs" class="feature">
+            <span class="feature__num">05</span>
+            <h3>Clubs</h3>
+            <p>Every student club, meeting time and description.</p>
+        </a>
+        <a href="/resources" class="feature">
+            <span class="feature__num">06</span>
+            <h3>Resources</h3>
+            <p>Official NMH links, including Hogger News.</p>
+        </a>
+    </div>
+</section>
 {% endblock %}

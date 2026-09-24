@@ -1,62 +1,172 @@
-$navy: #003366;
-$maroon: #8B0000;
-
-.page-center {
-  display: flex;
-  align-items: center;     
-  justify-content: center; 
-  height: 80vh;    
+// ---------- Home hero (editorial) ----------
+.hero {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    align-items: center;
+    gap: clamp(28px, 5vw, 88px);
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: clamp(48px, 12vh, 140px) clamp(20px, 4vw, 48px) 64px;
 }
 
-.home-container {
-  
-  padding: 40px 20px;
-  width: 70vw;
-  text-align: center;
-  background: #f4f4f4;
-  border-radius: 8px;
-
-  h1 {
-    font-size: 32px;
-    margin-bottom: 20px;
-    font-weight: 700;
-    color: $navy;
-  }
-
-  h2 {
-    font-size: 28px;
-    margin-bottom: 20px;
+.hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 0.78rem;
     font-weight: 500;
-    color: $navy;
-  }
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
 
-  p {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #333;
-    margin-bottom: 15px;
-  }
+.hero__dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--navy);
+    border-radius: 50%;
+}
 
-  .guide {
-    margin-top: 30px;
-    text-align: left;
-    padding-left: 5vw;
+.hero__title {
+    margin: 22px 0 40px;
+    font-family: var(--font-body);
+    font-size: clamp(2.4rem, 5vw, 4.4rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    color: var(--ink);
 
-    .desc {
-      font-weight: 600;
-      color: $maroon;
-      margin-bottom: 10px;
+    em {
+        font-style: normal;
+        font-weight: 600;
+        color: var(--crimson);
+    }
+}
+
+.hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.hero__art {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 460px;
+}
+
+.hero__pig {
+    position: relative;
+    z-index: 1;
+    width: unquote("min(280px, 70%)");
+    height: auto;
+}
+
+
+
+// ---------- Feature index ----------
+// The section itself is transparent — each cell carries its own faint glass.
+.features {
+    max-width: 1180px;
+    margin: 0 auto 80px;
+    padding: 32px clamp(20px, 4vw, 48px) 40px;
+    background: transparent;
+}
+
+.features__label {
+    margin: 0 0 20px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+
+// Tic-tac-toe grid: only internal separators, no outer bounding box.
+// Each cell draws its right + bottom, then the last column/row strip them off.
+.features__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 520px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.feature {
+    display: block;
+    padding: 24px 22px 28px;
+    background: rgba(255, 255, 255, 0.32);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--ink);
+    text-decoration: none;
+    border-right: 1px solid rgba(27, 26, 43, 0.22);
+    border-bottom: 1px solid rgba(27, 26, 43, 0.22);
+    transition: background 0.25s ease, color 0.15s ease;
+
+    // Strip outer edges to keep only the inner # of a tic-tac-toe grid.
+    &:nth-child(4n) { border-right: none; }
+    &:nth-last-child(-n+2):nth-child(4n+1),
+    &:nth-last-child(-n+2):nth-child(4n+2),
+    &:nth-last-child(-n+1) { border-bottom: none; }
+
+    @media (max-width: 900px) {
+        &:nth-child(2n) { border-right: none; }
+        &:nth-child(4n) { border-right: 1px solid rgba(27, 26, 43, 0.22); }
+        &:nth-last-child(-n+2) { border-bottom: none; }
+    }
+    @media (max-width: 520px) {
+        border-right: none !important;
     }
 
-    ul {
-      list-style-type: disc;
-      padding-left: 20px;
-
-      li {
-        margin-bottom: 8px;
-        font-size: 15px;
-        color: #333;
-      }
+    h3 {
+        margin: 10px 0 8px;
+        font-family: var(--font-body);
+        font-size: 1.15rem;
+        font-weight: 600;
+        letter-spacing: -0.015em;
     }
-  }
+
+    p {
+        margin: 0;
+        color: var(--ink-soft);
+        line-height: 1.55;
+        font-size: 0.92rem;
+    }
+
+    // Slight per-cell lift on hover — the cell brightens a touch.
+    &:hover {
+        background: rgba(255, 255, 255, 0.55);
+
+        h3 { color: var(--navy); }
+    }
+}
+
+.feature__num {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--navy);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+}
+
+@media (max-width: 860px) {
+    .hero {
+        grid-template-columns: 1fr;
+        padding-top: clamp(28px, 6vh, 56px);
+    }
+    .hero__art { order: -1; min-height: 320px; }
+    .hero__title { font-size: clamp(2.6rem, 12vw, 4rem); }
+    .hero__pig { width: unquote("min(260px, 62vw)"); }
+    .feature { border-right: none; }
 }

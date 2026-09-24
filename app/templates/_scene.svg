@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+    <defs>
+        <!-- Sky: pale sky-blue at top, warm cream near the horizon. -->
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0"    stop-color="#a9c1e0"/>
+            <stop offset="0.6"  stop-color="#c9d4e6"/>
+            <stop offset="0.95" stop-color="#e6d8c2"/>
+            <stop offset="1"    stop-color="#e0c9a2"/>
+        </linearGradient>
+        <radialGradient id="sun" cx="0.82" cy="0.28" r="0.24">
+            <stop offset="0"   stop-color="#fff2d8" stop-opacity="0.7"/>
+            <stop offset="0.6" stop-color="#f3d5a2" stop-opacity="0.18"/>
+            <stop offset="1"   stop-color="#e8b98a" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Receding mountain ridges. -->
+        <linearGradient id="mtn1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#9aa5c0"/>
+            <stop offset="1" stop-color="#7e88a8"/>
+        </linearGradient>
+        <linearGradient id="mtn2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#7a7fa0"/>
+            <stop offset="1" stop-color="#5a5f80"/>
+        </linearGradient>
+        <linearGradient id="mtn3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#6b5b78"/>
+            <stop offset="1" stop-color="#4a3f60"/>
+        </linearGradient>
+        <linearGradient id="mtn4" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#805a44"/>
+            <stop offset="1" stop-color="#5a3d2e"/>
+        </linearGradient>
+
+        <!-- Autumn tree canopies. -->
+        <linearGradient id="canopyOchre" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f0c070"/>
+            <stop offset="1" stop-color="#b57a30"/>
+        </linearGradient>
+        <linearGradient id="canopyRust" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#e0a24e"/>
+            <stop offset="0.55" stop-color="#c8623a"/>
+            <stop offset="1" stop-color="#7a2a1a"/>
+        </linearGradient>
+        <linearGradient id="canopyBurg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#8f3a2a"/>
+            <stop offset="1" stop-color="#4a1f16"/>
+        </linearGradient>
+        <linearGradient id="canopyDeepGreen" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3d5a3a"/>
+            <stop offset="1" stop-color="#1e3a2a"/>
+        </linearGradient>
+
+        <!-- Lawn: small strip at the bottom. -->
+        <linearGradient id="lawn" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#8a9e5a"/>
+            <stop offset="1" stop-color="#4a6733"/>
+        </linearGradient>
+    </defs>
+
+    <!-- ===== Sky ===== -->
+    <rect width="1600" height="900" fill="url(#sky)"/>
+    <ellipse cx="1310" cy="260" rx="440" ry="280" fill="url(#sun)"/>
+
+    <!-- ===== Mountain ridges ===== -->
+    <path d="M0,400 C120,360 220,385 340,355 C460,325 560,360 680,340
+             C800,320 900,355 1040,335 C1180,315 1300,350 1440,330
+             C1520,318 1580,335 1600,328 L1600,540 L0,540 Z"
+          fill="url(#mtn1)" opacity="0.9"/>
+
+    <path d="M0,460 C140,430 280,450 420,420 C560,390 700,435 840,415
+             C980,395 1100,430 1240,410 C1380,390 1480,425 1600,405
+             L1600,600 L0,600 Z"
+          fill="url(#mtn2)"/>
+
+    <path d="M0,520 C160,490 320,520 500,495 C680,465 860,510 1040,495
+             C1220,480 1400,510 1600,500 L1600,660 L0,660 Z"
+          fill="url(#mtn3)"/>
+    <path d="M0,532 C160,510 320,536 500,510 C680,488 860,525 1040,512
+             C1220,495 1400,526 1600,512 L1600,596 L0,596 Z"
+          fill="#7a4530" opacity="0.35"/>
+
+    <path d="M0,600 C180,560 380,595 580,565 C780,535 980,590 1180,565
+             C1380,545 1520,580 1600,570 L1600,720 L0,720 Z"
+          fill="url(#mtn4)"/>
+    <path d="M0,615 C180,585 380,608 580,585 C780,558 980,605 1180,585
+             C1380,565 1520,595 1600,590 L1600,660 L0,660 Z"
+          fill="#a95a34" opacity="0.55"/>
+
+    <!-- ===== Autumn tree line along ridges ===== -->
+    <g opacity="0.85">
+        <path d="M0,650 C40,620 90,640 140,630 C190,618 240,640 290,632
+                 C340,620 390,640 440,632 C490,622 540,640 590,630
+                 C640,618 690,640 740,632 C790,620 840,640 890,630
+                 C940,618 990,640 1040,632 C1090,620 1140,640 1190,632
+                 C1240,622 1290,642 1340,632 C1390,622 1440,640 1490,630
+                 C1540,620 1590,640 1600,634 L1600,700 L0,700 Z"
+              fill="url(#canopyBurg)"/>
+    </g>
+
+    <!-- Autumn foliage clumps across the mid-ground -->
+    <g>
+        <ellipse cx="90"   cy="720" rx="90"  ry="55" fill="url(#canopyRust)"/>
+        <ellipse cx="185"  cy="700" rx="110" ry="65" fill="url(#canopyOchre)"/>
+        <ellipse cx="120"  cy="750" rx="70"  ry="35" fill="url(#canopyBurg)" opacity="0.9"/>
+
+        <ellipse cx="1490" cy="720" rx="105" ry="60" fill="url(#canopyRust)"/>
+        <ellipse cx="1400" cy="705" rx="120" ry="65" fill="url(#canopyOchre)"/>
+        <ellipse cx="1520" cy="755" rx="85"  ry="35" fill="url(#canopyBurg)" opacity="0.9"/>
+
+        <ellipse cx="360"  cy="735" rx="80"  ry="40" fill="url(#canopyDeepGreen)" opacity="0.85"/>
+        <ellipse cx="1250" cy="735" rx="90"  ry="42" fill="url(#canopyDeepGreen)" opacity="0.85"/>
+
+        <!-- Extra warmer canopies filling where the building used to sit -->
+        <ellipse cx="620"  cy="720" rx="130" ry="55" fill="url(#canopyRust)" opacity="0.85"/>
+        <ellipse cx="520"  cy="740" rx="95"  ry="40" fill="url(#canopyOchre)" opacity="0.9"/>
+        <ellipse cx="750"  cy="745" rx="95"  ry="42" fill="url(#canopyBurg)" opacity="0.85"/>
+
+        <ellipse cx="980"  cy="720" rx="130" ry="55" fill="url(#canopyOchre)" opacity="0.85"/>
+        <ellipse cx="880"  cy="745" rx="90"  ry="40" fill="url(#canopyBurg)" opacity="0.85"/>
+        <ellipse cx="1080" cy="740" rx="100" ry="42" fill="url(#canopyRust)" opacity="0.9"/>
+
+        <!-- Small distant deep-red canopies -->
+        <ellipse cx="440" cy="700" rx="45" ry="22" fill="#8a3a22" opacity="0.75"/>
+        <ellipse cx="1160" cy="700" rx="42" ry="20" fill="#8a3a22" opacity="0.75"/>
+    </g>
+
+    <!-- ===== Small lawn strip ===== -->
+    <rect x="0" y="760" width="1600" height="140" fill="url(#lawn)"/>
+    <rect x="0" y="830" width="1600" height="6" fill="#3f5a2a" opacity="0.3"/>
+    <ellipse cx="120"  cy="840" rx="60"  ry="6" fill="#3f5a2a" opacity="0.5"/>
+    <ellipse cx="640"  cy="875" rx="180" ry="8" fill="#3f5a2a" opacity="0.4"/>
+    <ellipse cx="1300" cy="850" rx="90"  ry="6" fill="#3f5a2a" opacity="0.5"/>
+
+    <!-- ===== Framing foreground trees (tall birch and maple) ===== -->
+    <g>
+        <!-- Left birch trunk -->
+        <rect x="60"  y="440" width="16" height="380" fill="#d4ccbe"/>
+        <rect x="60"  y="470" width="16" height="14" fill="#3a3025" opacity="0.6"/>
+        <rect x="60"  y="540" width="16" height="12" fill="#3a3025" opacity="0.6"/>
+        <rect x="60"  y="620" width="16" height="12" fill="#3a3025" opacity="0.6"/>
+        <rect x="60"  y="720" width="16" height="10" fill="#3a3025" opacity="0.6"/>
+        <!-- Left canopy overhang -->
+        <path d="M-80,380 C10,340 100,350 180,395 C190,430 150,450 100,445 C40,450 -30,450 -80,430 Z" fill="url(#canopyOchre)"/>
+        <path d="M-60,420 C40,390 130,405 200,435 C200,470 150,485 90,480 C30,475 -40,470 -60,450 Z" fill="url(#canopyRust)" opacity="0.9"/>
+
+        <!-- Right maple trunk -->
+        <rect x="1520" y="460" width="20" height="360" fill="#5a4030"/>
+        <path d="M1400,370 C1490,330 1590,345 1660,375 C1680,410 1650,445 1595,450 C1525,455 1445,450 1420,425 Z" fill="url(#canopyRust)"/>
+        <path d="M1430,420 C1510,385 1620,405 1670,435 C1670,470 1630,490 1560,485 C1500,480 1440,465 1430,440 Z" fill="url(#canopyBurg)" opacity="0.9"/>
+    </g>
+</svg>

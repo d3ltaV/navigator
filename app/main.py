@@ -1,48 +1,30 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify
 from flask_assets import Environment, Bundle
-import json
 from dotenv import load_dotenv
-from flask_login import (
-    LoginManager,
-    current_user,
-    login_required,
-    login_user,
-    logout_user,
-)
-from oauthlib.oauth2 import WebApplicationClient
-import requests
-
-from database.user import User
-from database.db import init_db
-from database.review import Review
 
 import os
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 load_dotenv()
 from utils.workjobs import WORKJOBS
 from utils.classes import CLASSES #format: list of [Class objects]
 from utils.cocurriculars import COCURRICULARS #format: list of [Cocurricular objects]
+from utils.clubs import CLUBS #format: list of [Club objects]
 
 BUILDINGS = ["Bolger", "Alumni Hall", "Schauffler Library", "Gym", "Gilder", "Various Locations", "RAC",
              "Health Center", "Communications Office", "Early Childhood Center", "Farm", "Service Learning",
              "Plant Facilities", "BEV"]
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
-GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 
 app = Flask(__name__)
-
-app.secret_key = os.environ.get("CLIENT_ID", None)
-login_manager = LoginManager()
-login_manager.init_app(app)
-client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 assets = Environment(app)
 assets.url = app.static_url_path
 assets.directory = app.static_folder
 assets.debug = True
 assets.auto_build = True
+# The on-disk filter cache renames files into place, which fails on Windows when
+# two threaded requests build at once (FileExistsError). Rebuilds are cheap without it.
+assets.cache = False
+assets.manifest = False
 
 scss_all = Bundle(
     'scss/index.scss',
@@ -52,28 +34,14 @@ scss_all = Bundle(
     'scss/map.scss',
     'scss/cocurriculars.scss',
     'scss/reference.scss',
-    'scss/login.scss',
+    'scss/theme.scss',
     filters='libsass',
     output='css/compiled.css'
 )
 assets.register('scss_all', scss_all)
 
-with app.app_context():
-    #pass
-    init_db()
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-
-def get_google_provider_cfg():
-    return requests.get(GOOGLE_DISCOVERY_URL).json()
-
-
 @app.route('/')
 def home():
-    if not current_user.is_authenticated:
-        return redirect(url_for('loginPage'))
     return render_template("index.html")
 
 @app.route("/cocurriculars")
@@ -88,6 +56,10 @@ def workjob_view():
 @app.route("/classes")
 def class_view():
     return render_template("classes.html")
+
+@app.route("/clubs")
+def club_view():
+    return render_template("clubs.html")
 
 @app.route("/api/search")
 def api_search():
@@ -123,6 +95,18 @@ def api_search():
             searchable_text = f"{class_dict.get('bnc', '')} {class_dict.get('name', '')} {class_dict.get('semester', '')} {class_dict.get('room', '')}".lower()
             if query in searchable_text:
                 results.append(class_dict)
+        return jsonify(results)
+
+    elif searchType == 'clubs':
+        if not query:
+            return jsonify([c.to_dict() for c in CLUBS])
+
+        results = []
+        for c in CLUBS:
+            club_dict = c.to_dict()
+            searchable_text = f"{club_dict.get('Name of Club', '')} {club_dict.get('Type of Club', '')} {club_dict.get('Description of Club', '')} {club_dict.get('Club Meeting Time and Location', '')}".lower()
+            if query in searchable_text:
+                results.append(club_dict)
         return jsonify(results)
 
     elif (searchType == 'cocurriculars'):
@@ -167,106 +151,9 @@ def api_workjobs(location):
     print(f"No match found for: '{loc}'")
     return jsonify({"error": "No workjobs found"}), 404
 
-@app.route("/api/reviews/<target_type>/<target_name>")
-def getReviews(target_type, target_name):
-    reviews = Review.target_review(target_type, target_name)
-    review_list = [
-        {
-            "id": r.id,
-            "user_id": r.user_id,
-            "target_type": r.target_type,
-            "target_name": r.target_name,
-            "review": r.review,
-            "rating": r.rating,
-            "created_at": r.created_at
-        }
-        for r in reviews
-    ]
-    return jsonify(review_list)
-
-@app.route("/api/reviews", methods=["POST"])
-@login_required
-def addReview():
-    data = request.json
-    target_type = data.get("target_type")
-    target_name = data.get("target_name")
-    review_text = data.get("review")
-    rating = data.get("rating")
-
-    Review.create(
-        user_id=current_user.id,
-        target_type=target_type,
-        target_name=target_name,
-        review=review_text,
-        rating=rating
-    )
-    return jsonify({"success": True}), 201
-
-@app.route("/loginpage")
-def loginPage():
-    return render_template("login.html")
-
-@app.route("/login")
-def login():
-    google_provider_cfg = get_google_provider_cfg()
-    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-    request_uri = client.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=url_for("callback", _external=True),
-        scope=["openid", "email", "profile"],
-    )
-    return redirect(request_uri)
-
-
-@app.route("/login/callback")
-def callback():
-    code = request.args.get("code")
-    google_provider_cfg = get_google_provider_cfg()
-    token_endpoint = google_provider_cfg["token_endpoint"]
-    token_url, headers, body = client.prepare_token_request(
-        token_endpoint,
-        authorization_response=request.url,
-        redirect_url=url_for("callback", _external=True),
-        code=code,
-    )
-    token_response = requests.post(
-        token_url,
-        headers=headers,
-        data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-    )
-    client.parse_request_body_response(json.dumps(token_response.json()))
-    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token(userinfo_endpoint)
-    userinfo_response = requests.get(uri, headers=headers, data=body)
-
-    if userinfo_response.json().get("email_verified"):
-        unique_id = userinfo_response.json()["sub"]
-        users_email = userinfo_response.json()["email"]
-        picture = userinfo_response.json()["picture"]
-        users_name = userinfo_response.json()["given_name"]
-    else:
-        return "User email not available or not verified by Google.", 400
-
-    user = User(id_=unique_id, name=users_name, email=users_email, profile_pic=picture)
-
-    if not User.get(unique_id):
-        User.create(unique_id, users_name, users_email, picture)
-
-    login_user(user)
-    print(f"name {user.name}, id {user.id}, email {user.email}")
-    return redirect(url_for("home"))
-
-
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for("home"))
-
 @app.route("/resources")
 def resources():
     return render_template("reference.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=3000)
