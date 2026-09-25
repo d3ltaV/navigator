@@ -6,7 +6,9 @@
     gap: clamp(28px, 5vw, 88px);
     max-width: 1180px;
     margin: 0 auto;
-    padding: clamp(48px, 12vh, 140px) clamp(20px, 4vw, 48px) 64px;
+    // Tighter vertical padding — prevents the grid from stretching too tall on
+    // large viewports (which pushed the pig too low at 100% zoom).
+    padding: clamp(28px, 5vh, 72px) clamp(20px, 4vw, 48px) 40px;
 }
 
 .hero__eyebrow {
@@ -55,14 +57,21 @@
     position: relative;
     display: grid;
     place-items: center;
-    min-height: 460px;
+    // A capped height range keeps the pig roughly the same distance from the
+    // horizon regardless of the viewport height (fixes the "pig sinks into the
+    // buildings" issue at 100% zoom / tall windows).
+    min-height: 360px;
+    max-height: 440px;
+    align-self: center;
 }
 
 .hero__pig {
     position: relative;
     z-index: 1;
     width: unquote("min(280px, 70%)");
+    max-height: 340px;
     height: auto;
+    object-fit: contain;
 }
 
 
@@ -71,18 +80,28 @@
 // The section itself is transparent — each cell carries its own faint glass.
 .features {
     max-width: 1180px;
-    margin: 0 auto 80px;
+    margin: clamp(48px, 8vh, 120px) auto 80px;
     padding: 32px clamp(20px, 4vw, 48px) 40px;
     background: transparent;
 }
 
 .features__label {
-    margin: 0 0 20px;
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.2em;
+    // Small floating pill flush with the grid's left edge, hovering ABOVE the
+    // top row of cells rather than sinking into them.
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    margin: 0 0 -18px 0;
+    transform: translateY(-16px);
+    padding: 5px 14px;
+    background: rgba(255, 255, 255, 0.32);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--ink-soft);
+    color: var(--navy);
 }
 
 // Tic-tac-toe grid: only internal separators, no outer bounding box.

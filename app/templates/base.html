@@ -63,13 +63,149 @@
                         moveRaf = null;
                     });
                 }, { passive: true });
+                function updateScroll() {
+                    scrollRaf = null;
+                    // --scroll: legacy raw px/100 var.
+                    doc.style.setProperty('--scroll', (window.scrollY / 100).toFixed(2));
+                    // --scroll-t: normalized 0..1 across the document height, drives lighting.
+                    var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                    var t = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
+                    doc.style.setProperty('--scroll-t', t.toFixed(3));
+                }
                 window.addEventListener('scroll', function () {
                     if (scrollRaf) return;
-                    scrollRaf = requestAnimationFrame(function () {
-                        doc.style.setProperty('--scroll', (window.scrollY / 100).toFixed(2));
-                        scrollRaf = null;
-                    });
+                    scrollRaf = requestAnimationFrame(updateScroll);
                 }, { passive: true });
+                window.addEventListener('resize', function () {
+                    if (scrollRaf) return;
+                    scrollRaf = requestAnimationFrame(updateScroll);
+                }, { passive: true });
+                updateScroll();
+            })();
+
+            // Custom-styled dropdowns. Wraps native <select> so screen readers,
+            // form submission, and existing 'change' listeners keep working.
+            (function () {
+                function enhance(sel) {
+                    if (sel.dataset.csEnhanced) return;
+                    sel.dataset.csEnhanced = '1';
+
+                    var wrap = document.createElement('div');
+                    wrap.className = 'cs-select';
+                    sel.parentNode.insertBefore(wrap, sel);
+                    wrap.appendChild(sel);
+                    sel.classList.add('cs-select__native');
+
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'cs-select__button';
+                    btn.setAttribute('aria-haspopup', 'listbox');
+                    btn.setAttribute('aria-expanded', 'false');
+                    var label = document.createElement('span');
+                    label.className = 'cs-select__label';
+                    var caret = document.createElement('span');
+                    caret.className = 'cs-select__caret';
+                    caret.setAttribute('aria-hidden', 'true');
+                    caret.textContent = '▾';
+                    btn.appendChild(label);
+                    btn.appendChild(caret);
+                    wrap.appendChild(btn);
+
+                    var list = document.createElement('ul');
+                    list.className = 'cs-select__list';
+                    list.setAttribute('role', 'listbox');
+                    list.hidden = true;
+                    wrap.appendChild(list);
+
+                    function refresh() {
+                        list.innerHTML = '';
+                        Array.prototype.forEach.call(sel.options, function (opt) {
+                            var item = document.createElement('li');
+                            item.className = 'cs-select__item';
+                            item.setAttribute('role', 'option');
+                            item.tabIndex = -1;
+                            item.textContent = opt.textContent;
+                            item.dataset.value = opt.value;
+                            if (opt.selected) {
+                                item.setAttribute('aria-selected', 'true');
+                                label.textContent = opt.textContent;
+                            }
+                            item.addEventListener('click', function () { pick(opt); });
+                            list.appendChild(item);
+                        });
+                    }
+                    refresh();
+
+                    function pick(opt) {
+                        sel.value = opt.value;
+                        Array.prototype.forEach.call(list.children, function (li) {
+                            li.removeAttribute('aria-selected');
+                            if (li.dataset.value === opt.value) li.setAttribute('aria-selected', 'true');
+                        });
+                        label.textContent = opt.textContent;
+                        close();
+                        sel.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+
+                    function open() {
+                        list.hidden = false;
+                        btn.setAttribute('aria-expanded', 'true');
+                        setTimeout(function () { document.addEventListener('click', onOutside); }, 0);
+                    }
+                    function close() {
+                        list.hidden = true;
+                        btn.setAttribute('aria-expanded', 'false');
+                        document.removeEventListener('click', onOutside);
+                    }
+                    function onOutside(e) { if (!wrap.contains(e.target)) close(); }
+
+                    btn.addEventListener('click', function () {
+                        list.hidden ? open() : close();
+                    });
+                    btn.addEventListener('keydown', function (e) {
+                        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            open();
+                            var first = list.querySelector('[aria-selected="true"]') || list.firstChild;
+                            first && first.focus();
+                        } else if (e.key === 'Escape') { close(); }
+                    });
+                    list.addEventListener('keydown', function (e) {
+                        var items = Array.prototype.slice.call(list.children);
+                        var idx = items.indexOf(document.activeElement);
+                        if (e.key === 'ArrowDown') { e.preventDefault(); items[Math.min(idx + 1, items.length - 1)].focus(); }
+                        else if (e.key === 'ArrowUp') { e.preventDefault(); items[Math.max(idx - 1, 0)].focus(); }
+                        else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+                        else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+                        else if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            var opt = sel.options[idx];
+                            if (opt) pick(opt);
+                            btn.focus();
+                        } else if (e.key === 'Escape') { close(); btn.focus(); }
+                    });
+
+                    // If existing JS updates the native <select> directly, keep the UI in sync.
+                    sel.addEventListener('change', function () {
+                        var opt = sel.options[sel.selectedIndex];
+                        if (opt) {
+                            label.textContent = opt.textContent;
+                            Array.prototype.forEach.call(list.children, function (li) {
+                                li.removeAttribute('aria-selected');
+                                if (li.dataset.value === opt.value) li.setAttribute('aria-selected', 'true');
+                            });
+                        }
+                    });
+                }
+
+                function enhanceAll() {
+                    document.querySelectorAll('.subject-filter, .sort-select').forEach(enhance);
+                }
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', enhanceAll);
+                } else {
+                    enhanceAll();
+                }
             })();
         </script>
     </body>

@@ -70,20 +70,62 @@ em {
 .scene-bg__art {
     position: absolute;
     inset: 0;
-    // Matching lavender bleeds into any tiny gap and softens the crop.
-    background: linear-gradient(180deg, #d6cde0 0%, #d1c3d4 55%, #6a5c58 100%);
+    // Warm sunset fill bleeds into any crop gap at the top of the page.
+    background: linear-gradient(180deg, #f6d1c0 0%, #eabca8 55%, #6a5c58 100%);
     animation: scene-pan 60s ease-in-out infinite alternate;
+}
 
-    .scene,
-    .scene-img {
-        width: 100%;
-        height: 100%;
-        display: block;
-        // Fill the viewport, biased to keep both sky (top) and grass (bottom) with
-        // equal crop on either edge if needed.
-        object-fit: cover;
-        object-position: center center;
-    }
+// All layered scene images share the same cover-fit so they stack pixel-perfect.
+// object-position biased low so the grass/lawn stays visible at the bottom.
+.scene-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center 72%;
+    will-change: opacity, transform;
+    transition: opacity 0.2s linear, transform 0.2s linear;
+}
+
+// Layer 1 — sunset base. Always visible so mountains/buildings never fully vanish.
+.scene-layer--sunset {
+    z-index: 1;
+}
+
+// Layer 2 — night scene. Cross-fades in as the user scrolls down.
+.scene-layer--night {
+    z-index: 2;
+    opacity: var(--scroll-t, 0);
+}
+
+// Layer 3 — sun. Drops out of the sky and fades early so it's gone by mid-scroll.
+.scene-layer--sun {
+    z-index: 3;
+    filter:
+        drop-shadow(0 0 22px rgba(255, 235, 160, 0.85))
+        drop-shadow(0 0 60px rgba(255, 210, 130, 0.5));
+    transform: translateY(calc(var(--scroll-t, 0) * 55vh));
+    opacity: calc(1.15 - var(--scroll-t, 0) * 2);
+}
+
+// Layer 4 — stars. Rise gently into view as night falls.
+.scene-layer--stars {
+    z-index: 4;
+    opacity: calc(var(--scroll-t, 0) * 0.95);
+    transform: translateY(calc((1 - var(--scroll-t, 0)) * 12vh));
+}
+
+// Layer 5 — moon glow. Fades in with night, rises slightly, carries a soft halo
+// (the CSP glow the user couldn't bake in).
+.scene-layer--moon {
+    z-index: 5;
+    filter:
+        drop-shadow(0 0 18px rgba(240, 240, 255, 0.9))
+        drop-shadow(0 0 44px rgba(215, 220, 250, 0.55));
+    opacity: var(--scroll-t, 0);
+    transform: translateY(calc((1 - var(--scroll-t, 0)) * 8vh));
 }
 
 // Vertical soft-lavender haze so the middle band (where text sits) stays readable
@@ -105,11 +147,16 @@ em {
 
 // ---------- Falling cherry-blossom petals ----------
 // Small five-petal shapes drift from top to bottom with rotation and gentle sway.
-// Pink/plum tints match the twilight sky in the campus painting behind.
-.scene-bg__leaves {
-    position: absolute;
+// The layer lives ABOVE content so each petal casts a soft pink glow that
+// interacts with whatever is behind (painting, text, cards) — light on dark
+// text reads as a warm halo, over the painting it looks like an ember drifting.
+.scene-leaves {
+    position: fixed;
     inset: 0;
     pointer-events: none;
+    z-index: 40;
+    // Default (normal) blend so the pink of each petal renders at its real color
+    // instead of getting washed to white by a lightening blend.
 }
 
 .leaf {
@@ -121,6 +168,14 @@ em {
     background-position: center;
     background-size: contain;
     opacity: 0;
+    // Petals shift from near-white in daylight to their full pink at night, plus
+    // a soft halo around them. Saturation/brightness are driven by --scroll-t so
+    // the tint follows the day-to-night transition on the background.
+    filter:
+        saturate(calc(0.32 + var(--scroll-t, 0) * 0.85))
+        brightness(calc(1.22 - var(--scroll-t, 0) * 0.22))
+        drop-shadow(0 0 3px rgba(230, 130, 165, 0.55))
+        drop-shadow(0 0 9px rgba(230, 130, 165, 0.28));
     animation:
         leaf-fall var(--fall-dur, 18s) linear var(--fall-delay, 0s) infinite,
         leaf-sway var(--sway-dur, 4s) ease-in-out var(--sway-delay, 0s) infinite alternate;
@@ -150,8 +205,8 @@ em {
 
 @keyframes leaf-fall {
     0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-    8%   { opacity: 0.9; }
-    92%  { opacity: 0.9; }
+    8%   { opacity: 0.95; }
+    92%  { opacity: 0.95; }
     100% { transform: translate(0, 108vh) rotate(540deg); opacity: 0; }
 }
 
@@ -180,9 +235,20 @@ em {
     gap: 24px;
     min-height: var(--header-h);
     padding: 10px clamp(16px, 3vw, 40px);
-    // Barely-there translucent panel separated from the page by a single hair line.
-    background: rgba(255, 255, 255, 0.06);
+    // Header background matches the sky: sunset tones at the top of the page,
+    // shifting toward the actual painted night-sky lavender as --scroll-t climbs.
+    background: linear-gradient(180deg,
+        color-mix(in srgb,
+            rgba(240, 200, 195, 0.55),
+            rgba(190, 178, 220, 0.6) calc(var(--scroll-t, 0) * 100%)),
+        color-mix(in srgb,
+            rgba(220, 195, 205, 0.45),
+            rgba(210, 195, 225, 0.5) calc(var(--scroll-t, 0) * 100%))
+    );
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
     border-bottom: 1px solid rgba(27, 26, 43, 0.18);
+    transition: background 0.15s linear;
 }
 
 .brand {

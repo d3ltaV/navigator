@@ -1,18 +1,23 @@
 <div class="scene-bg" aria-hidden="true">
     <div class="scene-bg__art">
-        <img src="{{ url_for('static', filename='images/campus-scene.webp') }}" alt="" class="scene-img">
+        <img src="{{ url_for('static', filename='images/scene-sunset.webp') }}" alt="" class="scene-layer scene-layer--sunset">
+        <img src="{{ url_for('static', filename='images/scene-night.webp')  }}" alt="" class="scene-layer scene-layer--night">
+        <img src="{{ url_for('static', filename='images/scene-sun.webp')    }}" alt="" class="scene-layer scene-layer--sun">
+        <img src="{{ url_for('static', filename='images/scene-stars.webp')  }}" alt="" class="scene-layer scene-layer--stars">
+        <img src="{{ url_for('static', filename='images/scene-moon.webp')   }}" alt="" class="scene-layer scene-layer--moon">
     </div>
     <div class="scene-bg__haze"></div>
-    <div class="scene-bg__leaves">
-        <span class="leaf leaf--1"></span>
-        <span class="leaf leaf--2"></span>
-        <span class="leaf leaf--3"></span>
-        <span class="leaf leaf--4"></span>
-        <span class="leaf leaf--5"></span>
-        <span class="leaf leaf--6"></span>
-        <span class="leaf leaf--7"></span>
-        <span class="leaf leaf--8"></span>
-        <span class="leaf leaf--9"></span>
-        <span class="leaf leaf--10"></span>
-    </div>
+</div>
+
+<div class="scene-leaves" aria-hidden="true">
+    <span class="leaf leaf--1"></span>
+    <span class="leaf leaf--2"></span>
+    <span class="leaf leaf--3"></span>
+    <span class="leaf leaf--4"></span>
+    <span class="leaf leaf--5"></span>
+    <span class="leaf leaf--6"></span>
+    <span class="leaf leaf--7"></span>
+    <span class="leaf leaf--8"></span>
+    <span class="leaf leaf--9"></span>
+    <span class="leaf leaf--10"></span>
 </div>
