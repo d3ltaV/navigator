@@ -30,7 +30,7 @@ function populateSubjectFilter() {
     });
     const filterSelect = document.getElementById('subjectFilter');
     Array.from(subjects).sort().forEach(subject => {
-        const option = document.createElement('option');
+        const option = document.createElement('sl-option');
         option.value = subject;
         option.textContent = subject;
         filterSelect.appendChild(option);
@@ -44,7 +44,7 @@ function populateDepartmentFilter() {
     });
     const filterSelect = document.getElementById('departmentFilter');
     Array.from(departments).sort().forEach(dpt => {
-        const option = document.createElement('option');
+        const option = document.createElement('sl-option');
         option.value = dpt;
         option.textContent = dpt;
         filterSelect.appendChild(option);
@@ -121,10 +121,12 @@ function displayClasses(classes) {
         if (c.ncaa)   html += '<button type="button" class="n">NCAA</button>';
         html += '</div>';
 
-        html += '<div class="class-info"><strong>Class Code:</strong> ' + (c.code || 'Unknown') + '</div>';
-        html += '<div class="class-info"><strong>Credit:</strong> ' + (c.credit || 'Unknown') + '</div>';
-        html += '<div class="class-info"><strong>Department:</strong> ' + (c.dpt || 'Unknown') + '</div>';
-        html += '<div class="class-info"><strong>Prerequisites:</strong> ' + (c.prereq || 'None') + '</div>';
+        html += '<div class="card-meta">';
+        html += '<div class="class-info"><strong>Code</strong><span>' + (c.code || 'Unknown') + '</span></div>';
+        html += '<div class="class-info"><strong>Credit</strong><span>' + (c.credit || 'Unknown') + '</span></div>';
+        html += '<div class="class-info"><strong>Department</strong><span>' + (c.dpt || 'Unknown') + '</span></div>';
+        html += '<div class="class-info"><strong>Prereq</strong><span>' + (c.prereq || 'None') + '</span></div>';
+        html += '</div>';
 
         if (c.desc) {
             html += '<div class="card-description"><strong>Description:</strong> ' + c.desc + '</div>';
@@ -177,11 +179,28 @@ function handleSort() {
     handleSearch();
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('searchBox').addEventListener('input', handleSearch);
-    document.getElementById('subjectFilter').addEventListener('change', handleSubjectFilter);
-    document.getElementById('departmentFilter').addEventListener('change', handleDepartmentFilter);
-    document.getElementById('sortSelect').addEventListener('change', handleSort);
-    document.getElementById('descendingCheck').addEventListener('change', handleSort);
+// Shoelace's custom elements upgrade asynchronously via the autoloader. Wait
+// until they're all defined before wiring events + kicking off the first fetch.
+async function bootstrap() {
+    if (window.customElements) {
+        await Promise.all([
+            customElements.whenDefined('sl-input'),
+            customElements.whenDefined('sl-select'),
+            customElements.whenDefined('sl-checkbox'),
+        ]);
+    }
+
+    document.getElementById('searchBox').addEventListener('sl-input', handleSearch);
+    document.getElementById('subjectFilter').addEventListener('sl-change', handleSubjectFilter);
+    document.getElementById('departmentFilter').addEventListener('sl-change', handleDepartmentFilter);
+    document.getElementById('sortSelect').addEventListener('sl-change', handleSort);
+    document.getElementById('descendingCheck').addEventListener('sl-change', handleSort);
+
     loadClasses();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap);
+} else {
+    bootstrap();
+}

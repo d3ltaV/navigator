@@ -44,38 +44,47 @@
             });
         });
 
+        // Un-hide the h1 parent (CSS FOUC guard set it to opacity: 0). Letters
+        // hold their own opacity: 0 in the initial fromTo state below so the
+        // reveal is invisible until the animation starts.
+        gsap.set('.hero__title', { opacity: 1 });
+
         // Eyebrow settles in first.
-        gsap.from('.hero__eyebrow', {
-            opacity: 0, y: 8, duration: 0.5, ease: 'power2.out'
-        });
+        gsap.fromTo('.hero__eyebrow',
+            { opacity: 0, y: 8 },
+            { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+        );
 
         // Title cascade — each letter slides in from the left.
-        gsap.from('.hero__title .letter', {
-            opacity: 0,
-            x: -32,
-            duration: 0.55,
-            ease: 'power2.out',
-            stagger: 0.028,
-            delay: 0.15
-        });
+        gsap.fromTo('.hero__title .letter',
+            { opacity: 0, x: -32 },
+            {
+                opacity: 1, x: 0, duration: 0.55, ease: 'power2.out',
+                stagger: 0.028, delay: 0.15
+            }
+        );
 
         // CTAs land after the letters finish cascading.
         var totalLetters = document.querySelectorAll('.hero__title .letter').length;
         var ctaDelay = 0.15 + totalLetters * 0.028 + 0.15;
 
-        gsap.from('.hero__cta', {
-            opacity: 0, y: 14, duration: 0.6, ease: 'power2.out', delay: ctaDelay
-        });
+        gsap.fromTo('.hero__cta',
+            { opacity: 0, y: 14 },
+            { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', delay: ctaDelay }
+        );
 
-        gsap.from('.hero__pig', {
-            opacity: 0, y: 22, duration: 0.9, ease: 'power2.out', delay: 0.25
-        });
+        gsap.fromTo('.hero__pig',
+            { opacity: 0, y: 22 },
+            { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.25 }
+        );
 
-        gsap.from('.feature', {
-            opacity: 0, y: 12, duration: 0.5, ease: 'power2.out', stagger: 0.06, delay: ctaDelay + 0.1
-        });
+        gsap.fromTo('.feature',
+            { opacity: 0, y: 12 },
+            { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', stagger: 0.06, delay: ctaDelay + 0.1 }
+        );
     });
 </script>
+
 
 <section class="features">
     <p class="features__label">NMH Navigator</p>

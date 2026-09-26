@@ -72,7 +72,16 @@ function handleSearch() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('searchBox').addEventListener('input', handleSearch);
+async function bootstrap() {
+    if (window.customElements) {
+        await customElements.whenDefined('sl-input');
+    }
+    document.getElementById('searchBox').addEventListener('sl-input', handleSearch);
     loadWorkjobs();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap);
+} else {
+    bootstrap();
+}

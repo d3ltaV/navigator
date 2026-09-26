@@ -20,9 +20,10 @@
     padding: 32px;
     margin-bottom: 24px;
     border: none;
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(16px) saturate(1.1);
-    -webkit-backdrop-filter: blur(16px) saturate(1.1);
+    background: rgba(255, 255, 255, 0.62);
+    // Cheaper blur radius so scroll doesn't re-composite an expensive filter.
+    backdrop-filter: blur(10px) saturate(1.08);
+    -webkit-backdrop-filter: blur(10px) saturate(1.08);
     // Kill the inherited 700 weight from older per-page SCSS (cocurriculars.scss:29
     // etc.). Children reset to normal unless they specify otherwise.
     font-weight: 400;
@@ -37,33 +38,68 @@
     }
 }
 
-.search-container { margin-bottom: 14px; }
+// Search container carries the leading magnifying-glass icon.
+.search-container {
+    position: relative;
+    margin-bottom: 14px;
 
-.search-box {
-    width: 100%;
-    padding: 13px 16px;
-    border: var(--line);
-    border-radius: 0;
-    background: rgba(255, 255, 255, 0.8);
-    font: 500 1rem var(--font-body);
-    color: var(--ink);
-    outline: none;
-
-    &:focus {
-        border: var(--line);
-        background: #fff;
-        outline: 3px solid var(--sky);
-        outline-offset: 0;
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        width: 16px;
+        height: 16px;
+        transform: translateY(-50%);
+        opacity: 0.65;
+        pointer-events: none;
+        background: no-repeat center / contain
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a2f5c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
     }
 }
 
+.search-box {
+    width: 100%;
+    padding: 13px 18px 13px 44px;
+    border: var(--line);
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.75);
+    font: 500 1rem var(--font-body);
+    color: var(--ink);
+    outline: none;
+    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+
+    &::placeholder {
+        color: var(--ink-soft);
+        opacity: 0.85;
+    }
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    &:focus {
+        border-color: rgba(27, 26, 43, 0.35);
+        background: #fff;
+        outline: none;
+        // Very faint sky halo — visible for keyboard users, not shouty.
+        box-shadow: 0 0 0 3px rgba(205, 218, 239, 0.3);
+    }
+}
+
+// Chip-style filter bar — labels ("Filter by X:") get folded INTO the chip as
+// tiny uppercase micro-copy so the row reads as a horizontal string of chips.
 .filter-sort-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px 24px;
+    gap: 8px;
     align-items: center;
 
-    label { font-weight: 500; font-size: 0.9rem; }
+    // The old-style `Filter by Subject:` <label> is now visually merged into the
+    // chip itself, so hide the standalone label element.
+    > label {
+        display: none;
+    }
 }
 
 .filter-container, .sort-container {
@@ -71,6 +107,13 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
+
+    > label {
+        // Convert the paired <label> into an inline eyebrow prefix on the chip.
+        // We can't reach the sibling chip's inner label, so hide the standalone
+        // and rely on the chip's own aria-label pattern below.
+        display: none;
+    }
 }
 
 // Native select is hidden once the enhancement script wraps it, but the base
@@ -93,7 +136,6 @@
     display: inline-block;
 
     &__native {
-        // Keep it in the DOM for accessibility / form fallback, but invisible.
         position: absolute;
         opacity: 0;
         pointer-events: none;
@@ -103,42 +145,57 @@
         border: 0;
     }
 
+    // The chip — flat, sharp corners, thin border, subtle hover.
     &__button {
         display: inline-flex;
         align-items: center;
-        gap: 12px;
-        min-width: 140px;
-        padding: 8px 14px;
-        border: var(--line);
+        gap: 10px;
+        min-width: 0;
+        padding: 7px 12px 7px 14px;
+        border: 1px solid rgba(26, 47, 92, 0.25);
         border-radius: 0;
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        color: var(--ink);
-        font: 500 0.9rem var(--font-body);
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--navy);
+        font: 500 0.85rem var(--font-body);
+        letter-spacing: 0.005em;
         cursor: pointer;
-        transition: background 0.15s, border-color 0.15s;
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+        // Baked-in eyebrow — set via data-eyebrow on the chip so we don't need
+        // to touch the template. Uppercase, muted, tight.
+        &::before {
+            content: attr(data-eyebrow);
+            padding-right: 8px;
+            border-right: 1px solid rgba(26, 47, 92, 0.2);
+            color: var(--ink-soft);
+            font: 600 0.65rem var(--font-body);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
 
         &:hover,
         &[aria-expanded="true"] {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: var(--navy);
         }
 
         &:focus-visible {
-            outline: 3px solid var(--sky);
-            outline-offset: 0;
+            outline: none;
+            box-shadow: 0 0 0 2px var(--sky);
+            border-color: var(--navy);
         }
     }
 
     &__label {
         flex: 1;
         text-align: left;
+        white-space: nowrap;
     }
 
     &__caret {
         font-size: 0.7rem;
         color: var(--navy);
-        transition: transform 0.15s;
+        transition: transform 0.2s ease;
     }
 
     &__button[aria-expanded="true"] &__caret {
@@ -218,14 +275,15 @@
 }
 
 // One flat glassy card for every catalog — no borders, no top stripe, just soft glass.
+// Blur radius kept modest so scrolling a page of 25+ cards stays cheap.
 .class-card, .workjob-card, .cocurricular-card {
     display: flex;
     flex-direction: column;
     padding: 22px 20px 20px;
     border: none;
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(14px) saturate(1.1);
-    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    background: rgba(255, 255, 255, 0.62);
+    backdrop-filter: blur(6px) saturate(1.05);
+    -webkit-backdrop-filter: blur(6px) saturate(1.05);
     transition: background 0.25s ease;
 
     &:hover { background: rgba(255, 255, 255, 0.82); }
@@ -245,15 +303,16 @@
     align-self: flex-start;
     display: inline-block;
     margin-bottom: 12px;
-    padding: 4px 12px;
-    border: none;
+    padding: 4px 11px;
+    border: 1px solid rgba(26, 47, 92, 0.14);
     border-radius: 0;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.72);
     color: var(--navy);
-    font: 600 0.72rem/1.3 var(--font-body);
-    letter-spacing: 0.06em;
+    font: 600 0.68rem/1.3 var(--font-body);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
     cursor: default;
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .tags {
@@ -284,6 +343,42 @@
     a { color: var(--navy); font-weight: 500; }
 }
 
+// Definition-list layout inside a card — labels in the left column (uppercase
+// muted), values in the right (ink). Same pattern as the map popup that
+// reads cleanly.
+.card-meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 16px;
+    margin: 4px 0 0;
+
+    .class-info, .workjob-info, .cocurricular-info {
+        display: contents;
+        margin: 0;
+
+        strong {
+            padding-top: 2px;
+            color: var(--ink-soft);
+            font: 600 0.68rem var(--font-body);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        span {
+            color: var(--ink);
+            font-size: 0.9rem;
+            line-height: 1.45;
+
+            a {
+                color: var(--navy);
+                font-weight: 500;
+                text-decoration: none;
+                &:hover { text-decoration: underline; }
+            }
+        }
+    }
+}
+
 // Shared "description" block used at the bottom of a card, separated from the
 // metadata above by a thin rule. Reused across workjobs and clubs.
 .workjob-description, .card-description {
@@ -312,17 +407,165 @@
 .loading, .no-results {
     grid-column: 1 / -1;
     text-align: center;
-    padding: 50px 20px;
+    padding: 56px 24px;
     color: var(--ink-soft);
 }
 
 .no-results {
-    border: 1.5px dashed var(--ink);
-    background: var(--card);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    border: 1px dashed rgba(27, 26, 43, 0.28);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(12px) saturate(1.05);
+    -webkit-backdrop-filter: blur(12px) saturate(1.05);
 
-    h2 { font-family: var(--font-display); color: var(--ink); margin: 0 0 8px; }
+    h2 {
+        font-family: var(--font-display);
+        font-size: 1.15rem;
+        font-weight: 500;
+        color: var(--ink);
+        margin: 0 0 6px;
+    }
+
+    p {
+        font-size: 0.9rem;
+        color: var(--ink-soft);
+        margin: 0;
+    }
+}
+
+// ---------- Shoelace theme overrides ----------
+// Map Shoelace's design tokens onto the NMH Navigator palette so its components
+// (sl-input, sl-select, sl-checkbox, sl-menu, sl-tag) inherit the ethereal look:
+// sharp corners, pale palette, no shadows, navy/sky accents.
+:root, .sl-theme-light {
+    // Palette — Shoelace primary/neutral/success/etc. ramps.
+    --sl-color-primary-50: #eaf1fc;
+    --sl-color-primary-100: #cddaef;
+    --sl-color-primary-200: #b6c8e6;
+    --sl-color-primary-300: #94b1d9;
+    --sl-color-primary-400: #6a8dc5;
+    --sl-color-primary-500: #3f66b8;
+    --sl-color-primary-600: #1a2f5c;
+    --sl-color-primary-700: #142647;
+    --sl-color-primary-800: #0f1c33;
+    --sl-color-primary-900: #0a121f;
+    --sl-color-primary-950: #05080f;
+
+    --sl-color-neutral-0: #ffffff;
+    --sl-color-neutral-50: #f6f4f9;
+    --sl-color-neutral-100: #ecebf1;
+    --sl-color-neutral-200: #dad9e2;
+    --sl-color-neutral-300: #b3b2c1;
+    --sl-color-neutral-400: #8a8998;
+    --sl-color-neutral-500: #57566a;
+    --sl-color-neutral-600: #3f3e4f;
+    --sl-color-neutral-700: #2a2938;
+    --sl-color-neutral-800: #1b1a2b;
+    --sl-color-neutral-900: #12111d;
+    --sl-color-neutral-950: #0b0a12;
+
+    // Sharp corners — kill Shoelace's default rounded radii.
+    --sl-border-radius-small: 0;
+    --sl-border-radius-medium: 0;
+    --sl-border-radius-large: 0;
+    --sl-border-radius-x-large: 0;
+
+    // No shadows.
+    --sl-shadow-x-small: none;
+    --sl-shadow-small: none;
+    --sl-shadow-medium: none;
+    --sl-shadow-large: none;
+    --sl-shadow-x-large: none;
+
+    // Typography — inherit Inter.
+    --sl-font-sans: var(--font-body);
+
+    // Very faint focus ring — barely-there sky glow instead of a bold outline.
+    --sl-focus-ring-color: rgba(205, 218, 239, 0.3);
+    --sl-focus-ring-width: 2px;
+    --sl-focus-ring-style: solid;
+    --sl-focus-ring: var(--sl-focus-ring-style) var(--sl-focus-ring-width) var(--sl-focus-ring-color);
+
+    // Inputs — thinner border, ethereal glass background.
+    --sl-input-border-color: rgba(27, 26, 43, 0.28);
+    --sl-input-border-color-hover: rgba(27, 26, 43, 0.45);
+    --sl-input-border-color-focus: rgba(27, 26, 43, 0.35);
+    --sl-input-background-color: rgba(255, 255, 255, 0.75);
+    --sl-input-background-color-hover: rgba(255, 255, 255, 0.9);
+    --sl-input-background-color-focus: #ffffff;
+    --sl-input-placeholder-color: var(--ink-soft);
+    --sl-input-color: var(--ink);
+    --sl-input-color-hover: var(--ink);
+    --sl-input-color-focus: var(--ink);
+    --sl-input-font-family: var(--font-body);
+    --sl-input-font-weight: 500;
+    --sl-input-label-color: var(--ink-soft);
+    --sl-input-help-text-color: var(--ink-soft);
+
+    // Menus / dropdowns — frosted card, sharp corners.
+    --sl-panel-background-color: rgba(255, 255, 255, 0.92);
+    --sl-panel-border-color: rgba(27, 26, 43, 0.18);
+    --sl-panel-border-width: 1px;
+
+    // Overlays.
+    --sl-overlay-background-color: rgba(27, 26, 43, 0.35);
+}
+
+// A few surgical fixes that need real CSS beyond token override.
+sl-input, sl-select, sl-checkbox {
+    // Match Inter body sizing so Shoelace controls feel native to the page.
+    font-family: var(--font-body);
+}
+
+// Shoelace's sl-menu items inherit --sl-color-primary-* — nudge selected/hover
+// so it uses --sky (light background, navy text) instead of a saturated primary.
+sl-menu-item::part(base) {
+    &:hover, &.sl-menu-item--focused {
+        background: var(--sky-soft);
+        color: var(--navy);
+    }
+}
+sl-menu-item[aria-selected="true"]::part(base),
+sl-option[aria-selected="true"]::part(base) {
+    background: var(--sky);
+    color: var(--navy);
+}
+
+// Frosted glass pane behind sl-select's dropdown, matching cards.
+sl-select::part(listbox) {
+    backdrop-filter: blur(14px) saturate(1.08);
+    -webkit-backdrop-filter: blur(14px) saturate(1.08);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+// Search input's inset icon slot — align the magnifier neatly.
+sl-input[type="search"]::part(prefix) {
+    padding-left: 2px;
+    color: var(--ink-soft);
+}
+
+// The chip "eyebrow" slotted into a filter/sort sl-select's prefix — small
+// uppercase muted micro-label, matching the editorial card-meta eyebrows.
+.chip-eyebrow {
+    padding-right: 8px;
+    border-right: 1px solid rgba(26, 47, 92, 0.2);
+    color: var(--ink-soft);
+    font: 600 0.62rem var(--font-body);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+// Compact the chip-style sl-select so it reads as a pill in the filter bar.
+sl-select.chip-select {
+    &::part(combobox) {
+        min-height: 34px;
+        padding: 2px 8px 2px 10px;
+        gap: 8px;
+    }
+    &::part(display-input) {
+        font: 500 0.85rem var(--font-body);
+        color: var(--navy);
+    }
 }
 
 // ---------- Info notice (workjobs disclaimer, etc.) ----------
@@ -649,9 +892,9 @@ gmp-map {
 .resource-card {
     padding: 22px 20px 20px;
     border: none;
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(14px) saturate(1.1);
-    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    background: rgba(255, 255, 255, 0.62);
+    backdrop-filter: blur(6px) saturate(1.05);
+    -webkit-backdrop-filter: blur(6px) saturate(1.05);
     transition: background 0.25s ease;
 
     &:hover { background: rgba(255, 255, 255, 0.82); }

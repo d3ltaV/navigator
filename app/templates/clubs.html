@@ -6,26 +6,24 @@
     <div class="classes-header">
         <h1>Clubs Directory</h1>
         <div class="search-container">
-            <input
-                type="text"
+            <sl-input
                 id="searchBox"
-                class="search-box"
+                type="search"
+                size="medium"
                 placeholder="Search by Club name or type..."
                 autocomplete="off"
+                clearable
             >
+                <sl-icon name="search" slot="prefix"></sl-icon>
+            </sl-input>
         </div>
         <div class="filter-sort-container">
-            <div class="sort-container">
-                <label for="sortSelect">Sort by:</label>
-                <select id="sortSelect" class="sort-select">
-                    <option value="name">Club Name</option>
-                    <option value="type">Club type</option>
-                </select>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="descendingCheck" class="sort-checkbox">
-                    Descending
-                </label>
-            </div>
+            <sl-select id="sortSelect" value="name" size="small" class="chip-select" hoist>
+                <span slot="prefix" class="chip-eyebrow">Sort</span>
+                <sl-option value="name">Club Name</sl-option>
+                <sl-option value="type">Club type</sl-option>
+            </sl-select>
+            <sl-checkbox id="descendingCheck" size="small">Descending</sl-checkbox>
         </div>
         <div class="results-info" id="resultsInfo">Loading Clubs...</div>
     </div>

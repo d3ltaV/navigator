@@ -6,13 +6,16 @@
         <div class="cocurriculars-header">
             <h1>Cocurriculars Directory</h1>
             <div class="search-container">
-                <input 
-                    type="text" 
-                    id="searchBox" 
-                    class="search-box" 
+                <sl-input
+                    id="searchBox"
+                    type="search"
+                    size="medium"
                     placeholder="Search by name, location, category, season, prerequisites..."
                     autocomplete="off"
+                    clearable
                 >
+                    <sl-icon name="search" slot="prefix"></sl-icon>
+                </sl-input>
             </div>
             <div class="results-info" id="resultsInfo">Loading cocurriculars...</div>
         </div>

@@ -6,40 +6,37 @@
         <div class="classes-header">
             <h1>Classes Directory</h1>
             <div class="search-container">
-                <input
-                    type="text"
+                <sl-input
                     id="searchBox"
-                    class="search-box"
+                    type="search"
+                    size="medium"
                     placeholder="Search by class name, code, department, or description..."
                     autocomplete="off"
+                    clearable
                 >
+                    <sl-icon name="search" slot="prefix"></sl-icon>
+                </sl-input>
             </div>
             <div class="filter-sort-container">
-                <div class="filter-container">
-                    <label for="subjectFilter">Filter by Subject:</label>
-                    <select id="subjectFilter" class="subject-filter">
-                        <option value="">All Subjects</option>
-                    </select>
-                </div>
-                <div class="filter-container">
-                    <label for="departmentFilter">Filter by Department:</label>
-                    <select id="departmentFilter" class="subject-filter">
-                        <option value="">All Departments</option>
-                    </select>
-                </div>
-                <div class="sort-container">
-                    <label for="sortSelect">Sort by:</label>
-                    <select id="sortSelect" class="sort-select">
-                        <option value="name">Class Name</option>
-                        <option value="code">Class Code</option>
-                        <option value="credit">Credit</option>
-                        <option value="ncaa">NCAA</option>
-                    </select>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="descendingCheck" class="sort-checkbox">
-                        Descending
-                    </label>
-                </div>
+                <sl-select id="subjectFilter" value="" size="small" placeholder="All Subjects" class="chip-select" hoist>
+                    <span slot="prefix" class="chip-eyebrow">Subject</span>
+                    <sl-option value="">All Subjects</sl-option>
+                </sl-select>
+
+                <sl-select id="departmentFilter" value="" size="small" placeholder="All Departments" class="chip-select" hoist>
+                    <span slot="prefix" class="chip-eyebrow">Department</span>
+                    <sl-option value="">All Departments</sl-option>
+                </sl-select>
+
+                <sl-select id="sortSelect" value="name" size="small" class="chip-select" hoist>
+                    <span slot="prefix" class="chip-eyebrow">Sort</span>
+                    <sl-option value="name">Class Name</sl-option>
+                    <sl-option value="code">Class Code</sl-option>
+                    <sl-option value="credit">Credit</sl-option>
+                    <sl-option value="ncaa">NCAA</sl-option>
+                </sl-select>
+
+                <sl-checkbox id="descendingCheck" size="small">Descending</sl-checkbox>
             </div>
             <div class="results-info" id="resultsInfo">Loading Classes...</div>
         </div>

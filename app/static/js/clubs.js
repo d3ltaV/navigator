@@ -79,7 +79,9 @@ function displayClubs(clubs) {
         html += '</div>';
 
         if (meeting) {
-            html += '<div class="class-info"><strong>Meeting: </strong>' + meeting + '</div>';
+            html += '<div class="card-meta">';
+            html += '<div class="class-info"><strong>Meeting</strong><span>' + meeting + '</span></div>';
+            html += '</div>';
         }
 
         if (desc) {
@@ -123,9 +125,22 @@ function handleSort() {
     handleSearch();
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('searchBox').addEventListener('input', handleSearch);
-    document.getElementById('sortSelect').addEventListener('change', handleSort);
-    document.getElementById('descendingCheck').addEventListener('change', handleSort);
+async function bootstrap() {
+    if (window.customElements) {
+        await Promise.all([
+            customElements.whenDefined('sl-input'),
+            customElements.whenDefined('sl-select'),
+            customElements.whenDefined('sl-checkbox'),
+        ]);
+    }
+    document.getElementById('searchBox').addEventListener('sl-input', handleSearch);
+    document.getElementById('sortSelect').addEventListener('sl-change', handleSort);
+    document.getElementById('descendingCheck').addEventListener('sl-change', handleSort);
     loadClubs();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap);
+} else {
+    bootstrap();
+}

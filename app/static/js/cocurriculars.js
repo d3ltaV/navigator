@@ -33,11 +33,13 @@ function displayCocurriculars(cocurriculars) {
         html += '<div class="cocurricular-card">';
         html += '<div class="cocurricular-title">' + (cocurricular.name || 'Untitled Position') + '</div>';
         html += '<div class="card-divider"></div>';
-        html += '<div class="cocurricular-info"><strong>Category:</strong> ' + (cocurricular.category || 'Category NA') + '</div>';
-        html += '<div class="cocurricular-info"><strong>Season:</strong> ' + (cocurricular.season || 'Season NA') + '</div>';
-        html += '<div class="cocurricular-info"><strong>Prerequisites:</strong> ' + (cocurricular.prerequisites || 'Prerequisites NA') + '</div>';
-        html += '<div class="cocurricular-info"><strong>Location:</strong> ' + (cocurricular.location || 'TBD') + '</div>';
-        html += '<div class="cocurricular-info"><strong>Schedule:</strong> ' + (cocurricular.schedule || 'TBD') + '</div>';
+        html += '<div class="card-meta">';
+        html += '<div class="cocurricular-info"><strong>Category</strong><span>' + (cocurricular.category || '—') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Season</strong><span>' + (cocurricular.season || '—') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Prereq</strong><span>' + (cocurricular.prerequisites || 'None') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Location</strong><span>' + (cocurricular.location || 'TBD') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Schedule</strong><span>' + (cocurricular.schedule || 'TBD') + '</span></div>';
+        html += '</div>';
         html += '</div>';
     }
     grid.innerHTML = html;
@@ -69,7 +71,16 @@ function handleSearch() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('searchBox').addEventListener('input', handleSearch);
+async function bootstrap() {
+    if (window.customElements) {
+        await customElements.whenDefined('sl-input');
+    }
+    document.getElementById('searchBox').addEventListener('sl-input', handleSearch);
     loadCocurriculars();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap);
+} else {
+    bootstrap();
+}
