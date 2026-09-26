@@ -11,13 +11,19 @@
 {% block body %}
     <div class="map-container">
         <gmp-map zoom="16" center="42.668, -72.4838" map-id="ilovematcha"></gmp-map>
-        <div id="popup" class="popup">
-            <div id="popup-content"></div>
-            <button id="popup-close">Close</button>
+        <div id="popup" class="popup" role="dialog" aria-labelledby="popup-title">
+            <div class="popup__head">
+                <p class="popup__eyebrow"><span class="popup__dot"></span>Location</p>
+                <button id="popup-close" class="popup__close" aria-label="Close">×</button>
+            </div>
+            <div id="popup-content" class="popup__body"></div>
         </div>
-        <div id="workjob-detail" class="workjob-detail">
-            <div id="workjob-detail-content"></div>
-            <button id="workjob-detail-close">Close</button>
+        <div id="workjob-detail" class="workjob-detail" role="dialog" aria-labelledby="workjob-detail-title">
+            <div class="popup__head">
+                <p class="popup__eyebrow"><span class="popup__dot"></span>Workjob</p>
+                <button id="workjob-detail-close" class="popup__close" aria-label="Close">×</button>
+            </div>
+            <div id="workjob-detail-content" class="popup__body"></div>
         </div>
     </div>
     <script type="module" src="{{ url_for('static', filename='js/map.js') }}"></script>

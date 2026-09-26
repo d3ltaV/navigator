@@ -83,13 +83,20 @@ function displayClubs(clubs) {
         }
 
         if (desc) {
-            html += '<div class="class-info"><strong>Description: </strong>' + desc + '</div>';
+            html += '<div class="card-description"><strong>Description:</strong> ' + desc + '</div>';
         }
 
         html += '</div>';
     }
 
     grid.innerHTML = html;
+    revealCards(grid.querySelectorAll('.class-card'));
+}
+
+function revealCards(cards) {
+    if (!window.gsap || !cards.length) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.from(cards, { opacity: 0, y: 8, duration: 0.35, stagger: 0.025, ease: 'power2.out' });
 }
 
 function updateResultsInfo(shown, total) {

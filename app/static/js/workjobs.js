@@ -33,20 +33,9 @@ function displayWorkjobs(workjobs) {
         html += '<div class="workjob-card">';
         html += '<div class="workjob-title">' + (job.name || 'Untitled Position') + '</div>';
         html += '<span class="workjob-location">' + (job.location || 'Location TBD') + '</span>';
-        html += '<div class="workjob-info"><strong>Supervisor:</strong> ' + (job.supervisor || 'TBD') + '</div>';
-
-        if (job.supervisor_email) {
-            html += '<div class="workjob-info"><strong>Email:</strong> <a href="mailto:' + job.supervisor_email + '">' + job.supervisor_email + '</a></div>';
-        }
-
-        html += '<div class="workjob-info"><strong>Available Spots:</strong> ' + (job.spots || 'N/A') + '</div>';
-
-        if (job.blocks) {
-            html += '<div class="workjob-blocks"><strong>Blocks</strong>: ' + job.blocks + '</div>';
-        }
 
         if (job.description) {
-            html += '<div class="workjob-description">' + job.description + '</div>';
+            html += '<div class="workjob-description"><strong>Description:</strong> ' + job.description + '</div>';
         }
 
         if (job.notes) {
@@ -55,6 +44,13 @@ function displayWorkjobs(workjobs) {
         html += '</div>';
     }
     grid.innerHTML = html;
+    revealCards(grid.querySelectorAll('.workjob-card'));
+}
+
+function revealCards(cards) {
+    if (!window.gsap || !cards.length) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.from(cards, { opacity: 0, y: 8, duration: 0.35, stagger: 0.025, ease: 'power2.out' });
 }
 
 function updateResultsInfo(shown, total) {

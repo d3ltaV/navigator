@@ -40,10 +40,24 @@
     letter-spacing: -0.035em;
     color: var(--ink);
 
-    em {
-        font-style: normal;
-        font-weight: 600;
+    // Non-italic accent — crimson highlight without the emphasis slant.
+    .hero__accent {
         color: var(--crimson);
+        font-style: normal;
+    }
+
+    // Each word rides its own inline-block so GSAP can translate it independently.
+    // Natural HTML whitespace already renders a word-space; a small extra margin
+    // on top gives the display headline slightly more breathing room.
+    .word {
+        display: inline-block;
+        margin-right: 0.08em;
+    }
+
+    // Each character rides its own inline-block so GSAP can translate it independently.
+    .letter {
+        display: inline-block;
+        white-space: pre;
     }
 }
 

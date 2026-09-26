@@ -23,6 +23,9 @@
     background: rgba(255, 255, 255, 0.55);
     backdrop-filter: blur(16px) saturate(1.1);
     -webkit-backdrop-filter: blur(16px) saturate(1.1);
+    // Kill the inherited 700 weight from older per-page SCSS (cocurriculars.scss:29
+    // etc.). Children reset to normal unless they specify otherwise.
+    font-weight: 400;
 
     h1 {
         font-family: var(--font-display);
@@ -203,6 +206,9 @@
     padding: 12px 0 0;
     color: var(--ink-soft);
     font-size: 0.88rem;
+    // Explicit weight so it doesn't inherit the 700 that older per-page SCSS
+    // sets on .cocurriculars-header (cocurriculars.scss:29).
+    font-weight: 400;
 }
 
 .classes-grid, .workjobs-grid, .cocurriculars-grid {
@@ -251,26 +257,54 @@
 }
 
 .tags {
-    margin-bottom: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+
+    // Override the shared pill margin so multiple tags wrap cleanly.
+    button {
+        margin-bottom: 0;
+    }
+
+    // NCAA highlight — distinct navy fill so it reads as a badge, not a grade level.
+    button.n {
+        background: var(--navy);
+        color: var(--paper);
+    }
 }
 
 .class-info, .workjob-info, .cocurricular-info {
-    margin: 4px 0;
+    margin: 6px 0;
     color: var(--ink-soft);
     font-size: 0.9rem;
-    line-height: 1.45;
+    line-height: 1.5;
 
     strong { color: var(--ink); font-weight: 600; }
     a { color: var(--navy); font-weight: 500; }
 }
 
-.workjob-description {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(22, 22, 26, 0.18);
+// Shared "description" block used at the bottom of a card, separated from the
+// metadata above by a thin rule. Reused across workjobs and clubs.
+.workjob-description, .card-description {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(27, 26, 43, 0.15);
     color: var(--ink-soft);
     font-size: 0.9rem;
     line-height: 1.55;
+
+    strong {
+        color: var(--ink);
+        font-weight: 600;
+    }
+}
+
+// Standalone thin divider between two card sections (used on the classes card,
+// which has no description block to carry the border).
+.card-divider {
+    margin: 10px 0 8px;
+    border-top: 1px solid rgba(27, 26, 43, 0.15);
 }
 
 .workjob-blocks { color: var(--ink-soft); font-size: 0.85rem; }
@@ -291,6 +325,33 @@
     h2 { font-family: var(--font-display); color: var(--ink); margin: 0 0 8px; }
 }
 
+// ---------- Info notice (workjobs disclaimer, etc.) ----------
+// Frosted white strip between the header and the grid — mirrors the card look
+// so it doesn't feel bolted on.
+.notice {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 20px 0;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+    font-weight: 400;
+    line-height: 1.55;
+}
+
+.notice__label {
+    flex-shrink: 0;
+    color: var(--navy);
+    font: 600 0.68rem var(--font-body);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
 // ---------- Map ----------
 .map-container {
     padding: clamp(12px, 2vw, 24px);
@@ -304,48 +365,248 @@ gmp-map {
     border: var(--line);
 }
 
+// Shared frosted-glass floating card used by both the location popup
+// (bottom-left) and the workjob detail modal (centered).
 .popup, .workjob-detail {
+    display: none;
+    position: fixed;
     border: var(--line);
     border-radius: 0;
-    background: var(--card);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px) saturate(1.1);
+    -webkit-backdrop-filter: blur(18px) saturate(1.1);
     box-shadow: none;
     font-family: var(--font-body);
     line-height: 1.5;
+    color: var(--ink);
+    z-index: 1000;
 }
 
-#popup button, #workjob-detail-close {
-    padding: 8px 16px;
-    border: var(--line);
+.popup {
+    left: clamp(16px, 3vw, 32px);
+    bottom: clamp(16px, 3vh, 32px);
+    width: unquote("min(340px, calc(100vw - 32px))");
+    max-height: 60vh;
+    overflow: hidden;
+    flex-direction: column;
+
+    &.is-open { display: flex; }
+}
+
+.workjob-detail {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: unquote("min(560px, calc(100vw - 32px))");
+    max-height: 82vh;
+    overflow: hidden;
+    flex-direction: column;
+    z-index: 1100;
+
+    &.is-open { display: flex; }
+}
+
+// Header row — small eyebrow label on the left, close × on the right.
+.popup__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid rgba(27, 26, 43, 0.15);
+    flex-shrink: 0;
+}
+
+.popup__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font: 600 0.68rem var(--font-body);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+
+.popup__dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--navy);
     border-radius: 0;
-    background: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    &:hover { background: var(--gold); }
 }
 
+.popup__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 0;
+    color: var(--ink-soft);
+    font: 400 20px/1 var(--font-body);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover {
+        background: var(--sky);
+        color: var(--navy);
+        border-color: var(--navy);
+    }
+}
+
+// Scrollable content region below the header.
+.popup__body {
+    padding: 14px 18px 18px;
+    overflow-y: auto;
+    flex: 1;
+
+    h3 {
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        color: var(--ink);
+        margin: 0 0 12px;
+        line-height: 1.2;
+
+        em { color: var(--crimson); }
+    }
+
+    // "Workjobs:" section label above the list.
+    .wj, .popup__section-label {
+        margin: 0 0 8px;
+        font: 600 0.7rem var(--font-body);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+
+        strong { color: var(--ink-soft); font-weight: 600; }
+    }
+
+    p { margin: 6px 0; }
+}
+
+// Vertical list wrapper for workjob links inside the location popup.
+.popup__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.popup__empty {
+    margin: 4px 0 0;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+// Workjob links inside the popup — read as a clean list.
 .workjob-link {
+    display: block;
+    padding: 9px 12px;
     color: var(--navy);
     font-weight: 500;
-    &:hover { color: var(--ink); }
+    font-size: 0.95rem;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+
+    &:hover {
+        background: var(--sky-soft);
+        border-left-color: var(--navy);
+        color: var(--navy);
+    }
 }
 
+// Definition-list metadata inside the workjob detail modal.
+// Uses a 2-column grid so labels and values align crisply.
+.popup__meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 18px;
+    margin: 0 0 4px;
+
+    .workjob-info {
+        display: contents;
+        margin: 0;
+        font-size: 0.92rem;
+        line-height: 1.45;
+
+        strong {
+            color: var(--ink-soft);
+            font: 600 0.7rem var(--font-body);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding-top: 3px;
+        }
+
+        span {
+            color: var(--ink);
+            a { color: var(--navy); font-weight: 500; text-decoration: none;
+                &:hover { text-decoration: underline; } }
+        }
+    }
+}
+
+.popup__body .workjob-description {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(27, 26, 43, 0.15);
+    color: var(--ink);
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+
+.workjob-note {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--sky-soft);
+    border-left: 2px solid var(--navy);
+    color: var(--ink);
+    font-size: 0.88rem;
+    line-height: 1.5;
+
+    strong {
+        display: inline-block;
+        margin-right: 6px;
+        color: var(--navy);
+        font: 600 0.68rem var(--font-body);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+}
+
+// Tabs for switching between workjobs at the same location.
 .workjob-tabs {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-bottom: 14px;
+    margin: 0 0 16px;
 }
 
 .workjob-tab {
     padding: 6px 12px;
-    border: var(--line);
+    border: 1px solid rgba(26, 47, 92, 0.35);
     border-radius: 0;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--navy);
     font: 500 0.8rem var(--font-body);
     cursor: pointer;
-    &.active, &:hover { background: var(--gold); }
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover {
+        background: var(--sky);
+        border-color: var(--navy);
+    }
+
+    &.active {
+        background: var(--navy);
+        color: var(--paper);
+        border-color: var(--navy);
+    }
 }
 
 // ---------- Resources ----------
@@ -356,9 +617,14 @@ gmp-map {
     background: transparent;
     text-align: left;
 
+    // Match the catalog h1 exactly so the four directory pages read as one system.
     h1 {
+        font-family: var(--font-display);
+        font-size: clamp(1.7rem, 3.2vw, 2.2rem);
+        font-weight: 500;
+        letter-spacing: -0.015em;
         color: var(--ink);
-        font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+        margin: 0 0 18px;
     }
 }
 

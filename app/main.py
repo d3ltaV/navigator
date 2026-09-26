@@ -77,7 +77,7 @@ def api_search():
         for jobs in WORKJOBS.values():
             for job in jobs:
                 job_dict = job.to_dict()
-                searchable_text = f"{job_dict.get('name', '')} {job_dict.get('location', '')} {job_dict.get('description', '')} {job_dict.get('supervisor', '')}".lower()
+                searchable_text = f"{job_dict.get('name', '')} {job_dict.get('location', '')} {job_dict.get('description', '')}".lower()
                 if query in searchable_text:
                     results.append(job_dict)
         return jsonify(results)
@@ -92,7 +92,9 @@ def api_search():
         results = []
         for c in CLASSES:
             class_dict = c.to_dict()
-            searchable_text = f"{class_dict.get('bnc', '')} {class_dict.get('name', '')} {class_dict.get('semester', '')} {class_dict.get('room', '')}".lower()
+            searchable_text = " ".join(str(class_dict.get(k) or "") for k in (
+                "name", "code", "dpt", "credit", "prereq", "desc"
+            )).lower()
             if query in searchable_text:
                 results.append(class_dict)
         return jsonify(results)
@@ -120,7 +122,7 @@ def api_search():
         for co in COCURRICULARS:
             # for x in co: add this loop if cocurriculars become grouped like workjobs
             co_dict = co.to_dict()
-            searchable_text = f"{co_dict.get('name', '')} {co_dict.get('category', '')} {co_dict.get('season', '')} {co_dict.get('prerequisites', '')} {co_dict.get('location', '')} {co_dict.get('schedule', '')} {co_dict.get('advisor', '')}".lower()
+            searchable_text = f"{co_dict.get('name', '')} {co_dict.get('category', '')} {co_dict.get('season', '')} {co_dict.get('prerequisites', '')} {co_dict.get('location', '')} {co_dict.get('schedule', '')}".lower()
 
             if query in searchable_text:
                 results.append(co_dict)

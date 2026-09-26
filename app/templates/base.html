@@ -8,6 +8,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.css">
 
         {% assets "scss_all" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}" />
@@ -46,13 +47,53 @@
             built by Joelle &rsquo;27 &amp; Lorcan &rsquo;26 <span class="page-byline__heart">&lt;3</span>
         </footer>
 
+        <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/gsap@3.13/dist/gsap.min.js"></script>
         <script>
-            // Pointer + scroll parallax on the background. Sets CSS vars --px, --py, --scroll
-            // that the shard layers use to shift at different depths, giving the page a 3D feel.
+            // Pointer parallax + smooth scroll. Sets CSS vars --px, --py, --scroll, --scroll-t.
+            // Lenis drives smoothing; the native scroll listener is kept only for --scroll
+            // (raw px/100) which Lenis's event doesn't expose. --scroll-t comes straight from
+            // Lenis's rAF tick to avoid a duplicate writer.
             (function () {
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
                 var doc = document.documentElement;
-                var moveRaf = null, scrollRaf = null;
+
+                // Snappier Lenis so heavy backdrop-filter cards + 5-layer parallax don't
+                // spend many frames re-compositing during a scroll gesture.
+                if (window.Lenis) {
+                    var lenis = new Lenis({
+                        autoRaf: true,
+                        duration: 0.8,
+                        lerp: 0.16,
+                        wheelMultiplier: 1
+                    });
+                    lenis.on('scroll', function (e) {
+                        doc.style.setProperty('--scroll-t', (e.progress || 0).toFixed(3));
+                        doc.style.setProperty('--scroll', ((e.scroll || 0) / 100).toFixed(2));
+                    });
+                } else {
+                    // Fallback: keep the original native scroll-driven vars.
+                    var scrollRaf = null;
+                    function updateScroll() {
+                        scrollRaf = null;
+                        doc.style.setProperty('--scroll', (window.scrollY / 100).toFixed(2));
+                        var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                        var t = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
+                        doc.style.setProperty('--scroll-t', t.toFixed(3));
+                    }
+                    window.addEventListener('scroll', function () {
+                        if (scrollRaf) return;
+                        scrollRaf = requestAnimationFrame(updateScroll);
+                    }, { passive: true });
+                    window.addEventListener('resize', function () {
+                        if (scrollRaf) return;
+                        scrollRaf = requestAnimationFrame(updateScroll);
+                    }, { passive: true });
+                    updateScroll();
+                }
+
+                // Pointer parallax — always native, independent of Lenis.
+                var moveRaf = null;
                 document.addEventListener('pointermove', function (e) {
                     if (moveRaf) return;
                     moveRaf = requestAnimationFrame(function () {
@@ -63,24 +104,6 @@
                         moveRaf = null;
                     });
                 }, { passive: true });
-                function updateScroll() {
-                    scrollRaf = null;
-                    // --scroll: legacy raw px/100 var.
-                    doc.style.setProperty('--scroll', (window.scrollY / 100).toFixed(2));
-                    // --scroll-t: normalized 0..1 across the document height, drives lighting.
-                    var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-                    var t = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
-                    doc.style.setProperty('--scroll-t', t.toFixed(3));
-                }
-                window.addEventListener('scroll', function () {
-                    if (scrollRaf) return;
-                    scrollRaf = requestAnimationFrame(updateScroll);
-                }, { passive: true });
-                window.addEventListener('resize', function () {
-                    if (scrollRaf) return;
-                    scrollRaf = requestAnimationFrame(updateScroll);
-                }, { passive: true });
-                updateScroll();
             })();
 
             // Custom-styled dropdowns. Wraps native <select> so screen readers,
@@ -207,6 +230,69 @@
                     enhanceAll();
                 }
             })();
+        </script>
+        <script>
+            // Shared page-load reveals — catalog/resources headers get a letter cascade,
+            // filter strips + notice + resource cards fade up beneath. One-shot on load.
+            window.addEventListener('load', function () {
+                if (!window.gsap) return;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+                // Skip the home page — it runs its own richer hero animation.
+                if (document.querySelector('.hero__title')) return;
+
+                function splitLetters(el) {
+                    var chars = Array.from(el.textContent);
+                    el.textContent = '';
+                    chars.forEach(function (ch) {
+                        var span = document.createElement('span');
+                        span.textContent = ch;
+                        span.style.display = 'inline-block';
+                        span.style.whiteSpace = 'pre';
+                        span.className = 'letter';
+                        el.appendChild(span);
+                    });
+                }
+
+                // Directory / resources page h1 — letter cascade from the left.
+                var headerH1 = document.querySelector(
+                    '.classes-header h1, .workjobs-header h1, .cocurriculars-header h1, .resources-header h1'
+                );
+                if (headerH1) {
+                    splitLetters(headerH1);
+                    gsap.from(headerH1.querySelectorAll('.letter'), {
+                        opacity: 0, x: -22, duration: 0.5,
+                        ease: 'power2.out', stagger: 0.022
+                    });
+                }
+
+                // Search + filter strip fades up beneath the h1.
+                gsap.from(
+                    '.classes-header .search-container, .classes-header .filter-sort-container,' +
+                    '.workjobs-header .search-container, .workjobs-header .filter-sort-container,' +
+                    '.cocurriculars-header .search-container, .cocurriculars-header .filter-sort-container',
+                    { opacity: 0, y: 10, duration: 0.5, ease: 'power2.out', stagger: 0.08, delay: 0.15 }
+                );
+
+                // Notice bar (workjobs disclaimer, etc.)
+                if (document.querySelector('.notice')) {
+                    gsap.from('.notice', {
+                        opacity: 0, y: 6, duration: 0.4, ease: 'power2.out', delay: 0.35
+                    });
+                }
+
+                // Resources page — section titles + cards.
+                if (document.querySelector('.resources-grid')) {
+                    gsap.from('.resources-section-title', {
+                        opacity: 0, x: -14, duration: 0.45,
+                        ease: 'power2.out', stagger: 0.05, delay: 0.2
+                    });
+                    gsap.from('.resource-card', {
+                        opacity: 0, y: 10, duration: 0.4,
+                        ease: 'power2.out', stagger: 0.035, delay: 0.3
+                    });
+                }
+            });
         </script>
     </body>
 </html>

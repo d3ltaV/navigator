@@ -38,16 +38,15 @@ async function initMap() {
     });
 
     locations.forEach(({ title, position }, i) => {
-        const pin = new PinElement({
-            glyphText: `${i + 1}`,
-            scale: 1.5
-        });
+        const el = document.createElement("div");
+        el.className = "rect-pin";
+        el.textContent = title;
 
         const marker = new AdvancedMarkerElement({
             map: mapElement.innerMap,
             position,
             title,
-            content: pin.element
+            content: el
         });
 
         marker.addListener("click", () => {
@@ -57,27 +56,37 @@ async function initMap() {
                     const popup = document.getElementById("popup");
                     const popupContent = document.getElementById("popup-content");
 
-                    let html = `<h3>${title}</h3><strong>Workjobs:</strong><br><br>`;
+                    let html = `<h3>${title}</h3>`;
 
-                    if (!data.error) {
+                    if (!data.error && data.length) {
+                        html += `<p class="popup__section-label">Workjobs at this location</p>`;
+                        html += `<div class="popup__list">`;
                         data.forEach(job => {
                             const sJob = encodeURIComponent(JSON.stringify(job));
                             const sData = encodeURIComponent(JSON.stringify(data));
                             const name = job.name ?? "Unnamed Workjob";
-                            html += `<a href="#" class="workjob-link" data-job="${sJob}" data-all="${sData}">${name}</a><br>`;
+                            html += `<a href="#" class="workjob-link" data-job="${sJob}" data-all="${sData}">${name}</a>`;
                         });
+                        html += `</div>`;
                     } else {
-                        html += "No workjobs found.";
+                        html += `<p class="popup__empty">No workjobs found at this location.</p>`;
                     }
 
                     popupContent.innerHTML = html;
-                    popup.style.display = "block";
+                    popup.classList.add("is-open");
+                    if (window.gsap) {
+                        gsap.fromTo(popup,
+                            { opacity: 0, y: 8 },
+                            { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out', clearProps: 'transform' }
+                        );
+                    }
 
                     document.querySelectorAll('.workjob-link').forEach(link => {
                         link.addEventListener('click', (e) => {
                             e.preventDefault();
-                            const dwj = decodeURIComponent(e.target.dataset.job);
-                            const aj = decodeURIComponent(e.target.dataset.all);
+                            const target = e.target.closest('.workjob-link');
+                            const dwj = decodeURIComponent(target.dataset.job);
+                            const aj = decodeURIComponent(target.dataset.all);
                             const workjob = JSON.parse(dwj);
                             const allJobs = JSON.parse(aj);
                             showWorkJobDetail(workjob, allJobs);
@@ -89,12 +98,23 @@ async function initMap() {
     });
 
     document.getElementById("popup-close").addEventListener("click", () => {
-        document.getElementById("popup").style.display = "none";
+        document.getElementById("popup").classList.remove("is-open");
     });
 
     document.getElementById("workjob-detail-close").addEventListener("click", () => {
-        document.getElementById("workjob-detail").style.display = "none";
+        document.getElementById("workjob-detail").classList.remove("is-open");
     });
+
+    // Pins drop in from a few pixels above with a tight stagger, once the map has
+    // placed their content. Runs on next tick so the DOM has all .rect-pin nodes.
+    if (window.gsap && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        requestAnimationFrame(() => {
+            gsap.from('.rect-pin', {
+                opacity: 0, y: -8, duration: 0.45,
+                ease: 'power2.out', stagger: 0.025, delay: 0.1
+            });
+        });
+    }
 }
 
 function showWorkJobDetail(workjob, allJobs) {
@@ -112,20 +132,24 @@ function showWorkJobDetail(workjob, allJobs) {
         html += '</div>';
     }
 
-    html += `
-        <h2>${workjob.name}</h2>
-        <p><strong>Location:</strong> ${workjob.location ?? 'N/A'}</p>
-        <p><strong>Supervisor:</strong> ${workjob.supervisor ?? 'N/A'}</p>
-        <p><strong>Email:</strong> ${workjob.supervisor_email ?? 'N/A'}</p>
-        <p><strong>Spots:</strong> ${workjob.spots ?? 'N/A'}</p>
-        <p><strong>Blocks:</strong> ${workjob.blocks ?? 'N/A'}</p>
-        <p><strong>Type:</strong> ${workjob.selected_or_assigned ?? 'N/A'}</p>
-        <p><strong>Description:</strong> ${workjob.description ?? 'N/A'}</p>
-        ${workjob.notes ? `<p><strong>Notes:</strong> ${workjob.notes}</p>` : ''}
-    `;
+    html += `<h3 class="workjob-title">${workjob.name ?? 'Untitled Workjob'}</h3>`;
+    html += `<div class="popup__meta">`;
+    if (workjob.location)            html += `<div class="workjob-info"><strong>Location</strong><span>${workjob.location}</span></div>`;
+    if (workjob.supervisor)          html += `<div class="workjob-info"><strong>Supervisor</strong><span>${workjob.supervisor}</span></div>`;
+    if (workjob.supervisor_email)    html += `<div class="workjob-info"><strong>Email</strong><span><a href="mailto:${workjob.supervisor_email}">${workjob.supervisor_email}</a></span></div>`;
+    if (workjob.spots)               html += `<div class="workjob-info"><strong>Spots</strong><span>${workjob.spots}</span></div>`;
+    if (workjob.blocks)              html += `<div class="workjob-info"><strong>Blocks</strong><span>${workjob.blocks}</span></div>`;
+    if (workjob.selected_or_assigned)html += `<div class="workjob-info"><strong>Type</strong><span>${workjob.selected_or_assigned}</span></div>`;
+    html += `</div>`;
+    if (workjob.description) html += `<div class="workjob-description">${workjob.description}</div>`;
+    if (workjob.notes)       html += `<div class="workjob-note"><strong>Note</strong> ${workjob.notes}</div>`;
 
     detailContent.innerHTML = html;
-    detail.style.display = "block";
+    detail.classList.add("is-open");
+    if (window.gsap) {
+        // Only opacity — the modal's CSS translate(-50%, -50%) keeps it centered.
+        gsap.fromTo(detail, { opacity: 0 }, { opacity: 1, duration: 0.22, ease: 'power2.out' });
+    }
 
     document.querySelectorAll('.workjob-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {

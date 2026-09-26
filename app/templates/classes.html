@@ -10,7 +10,7 @@
                     type="text"
                     id="searchBox"
                     class="search-box"
-                    placeholder="Search by class name, description, location, or subject..."
+                    placeholder="Search by class name, code, department, or description..."
                     autocomplete="off"
                 >
             </div>
@@ -21,13 +21,19 @@
                         <option value="">All Subjects</option>
                     </select>
                 </div>
+                <div class="filter-container">
+                    <label for="departmentFilter">Filter by Department:</label>
+                    <select id="departmentFilter" class="subject-filter">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
                 <div class="sort-container">
                     <label for="sortSelect">Sort by:</label>
                     <select id="sortSelect" class="sort-select">
                         <option value="name">Class Name</option>
-                        <option value="bnc">BNC Code</option>
-                        <option value="semester">Semester</option>
-                        <option value="room">Room</option>
+                        <option value="code">Class Code</option>
+                        <option value="credit">Credit</option>
+                        <option value="ncaa">NCAA</option>
                     </select>
                     <label class="checkbox-label">
                         <input type="checkbox" id="descendingCheck" class="sort-checkbox">

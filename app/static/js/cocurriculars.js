@@ -32,15 +32,22 @@ function displayCocurriculars(cocurriculars) {
         const cocurricular = cocurriculars[i];
         html += '<div class="cocurricular-card">';
         html += '<div class="cocurricular-title">' + (cocurricular.name || 'Untitled Position') + '</div>';
+        html += '<div class="card-divider"></div>';
         html += '<div class="cocurricular-info"><strong>Category:</strong> ' + (cocurricular.category || 'Category NA') + '</div>';
         html += '<div class="cocurricular-info"><strong>Season:</strong> ' + (cocurricular.season || 'Season NA') + '</div>';
         html += '<div class="cocurricular-info"><strong>Prerequisites:</strong> ' + (cocurricular.prerequisites || 'Prerequisites NA') + '</div>';
         html += '<div class="cocurricular-info"><strong>Location:</strong> ' + (cocurricular.location || 'TBD') + '</div>';
         html += '<div class="cocurricular-info"><strong>Schedule:</strong> ' + (cocurricular.schedule || 'TBD') + '</div>';
-        html += '<div class="cocurricular-info"><strong>Advisor:</strong> ' + (cocurricular.advisor || 'TBD') + '</div>';
         html += '</div>';
     }
     grid.innerHTML = html;
+    revealCards(grid.querySelectorAll('.cocurricular-card'));
+}
+
+function revealCards(cards) {
+    if (!window.gsap || !cards.length) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.from(cards, { opacity: 0, y: 8, duration: 0.35, stagger: 0.025, ease: 'power2.out' });
 }
 
 function updateResultsInfo(shown, total) {
