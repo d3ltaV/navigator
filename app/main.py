@@ -138,6 +138,15 @@ def map():
     return render_template("map.html", api=key)
 
 
+@app.route("/api/config")
+def api_config():
+    # Google Maps JS API key — served to the React frontend at boot so it can
+    # load the Maps SDK. Key is already client-visible via the /map template,
+    # so returning it here is not a new exposure.
+    load_dotenv()
+    return jsonify({"mapsApiKey": os.getenv('API')})
+
+
 @app.route("/api/workjobs/<location>")
 def api_workjobs(location):
     loc = location.lower().strip()
