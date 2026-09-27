@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Search } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
+import { ChevronRight, Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
     Select,
@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
+import { ViewToggle, useViewMode } from '@/components/ViewToggle'
 
 type ClassRow = {
     dpt: string | null
@@ -41,14 +42,25 @@ export default function Classes() {
     const [rows, setRows] = useState<ClassRow[]>([])
     const [loading, setLoading] = useState(true)
     const [query, setQuery] = useState('')
+    const [debouncedQuery, setDebouncedQuery] = useState('')
     const [subject, setSubject] = useState<string>('all')
     const [department, setDepartment] = useState<string>('all')
     const [sort, setSort] = useState<SortKey>('name')
     const [descending, setDescending] = useState(false)
+    const [view, setView] = useViewMode('classesView')
+    const [expanded, setExpanded] = useState<number | null>(null)
+    const hasFetchedOnce = useRef(false)
+
+    // Debounce the search input so typing "math" doesn't fire 4 back-to-back
+    // fetches and 4 grid re-renders.
+    useEffect(() => {
+        const t = setTimeout(() => setDebouncedQuery(query), 200)
+        return () => clearTimeout(t)
+    }, [query])
 
     useEffect(() => {
         setLoading(true)
-        const q = query.trim()
+        const q = debouncedQuery.trim()
         const url = q
             ? `/api/search?q=${encodeURIComponent(q)}&s=classes`
             : '/api/search?s=classes'
@@ -57,8 +69,9 @@ export default function Classes() {
             .then((data: ClassRow[]) => {
                 setRows(data)
                 setLoading(false)
+                hasFetchedOnce.current = true
             })
-    }, [query])
+    }, [debouncedQuery])
 
     const subjects = useMemo(
         () => Array.from(new Set(rows.map((c) => extractSubject(c.code)).filter(Boolean))).sort(),
@@ -141,33 +154,86 @@ export default function Classes() {
                     </label>
                 </div>
 
-                <p className="mt-3 text-[0.88rem] font-normal text-muted-foreground">
-                    {loading
-                        ? 'Loading classes...'
-                        : filtered.length === rows.length
-                        ? 'Showing all classes!'
-                        : `Showing ${filtered.length} of ${rows.length} classes`}
-                </p>
+                <div className="results-info-row">
+                    <p className="text-[0.88rem] font-normal text-muted-foreground">
+                        {loading
+                            ? 'Loading classes...'
+                            : filtered.length === rows.length
+                            ? 'Showing all classes!'
+                            : `Showing ${filtered.length} of ${rows.length} classes`}
+                    </p>
+                    <ViewToggle mode={view} onChange={setView} />
+                </div>
             </motion.div>
 
-            {/* Grid */}
+            {view === 'list' ? (
+                <div className="dir-list">
+                    {filtered.map((c, i) => {
+                        const isOpen = expanded === i
+                        return (
+                            <div key={(c.code || c.name || '') + i} className="dir-list-item">
+                                <button
+                                    type="button"
+                                    className="dir-list-row"
+                                    aria-expanded={isOpen}
+                                    onClick={() => setExpanded(isOpen ? null : i)}
+                                >
+                                    <span className="dir-list-title">{c.name}</span>
+                                    <span className="dir-list-meta">
+                                        {c.code && <span className="pill">{c.code}</span>}
+                                        {c.ncaa && (
+                                            <span
+                                                className="pill"
+                                                style={{ background: '#1a2f5c', color: '#f4f2f8', borderColor: '#1a2f5c' }}
+                                            >
+                                                NCAA
+                                            </span>
+                                        )}
+                                    </span>
+                                    <ChevronRight className="dir-list-caret h-4 w-4" />
+                                </button>
+                                {isOpen && (
+                                    <div className="dir-list-detail">
+                                        <div className="mb-3 mt-1 flex flex-wrap gap-1.5">
+                                            {c.nine && <TagPill>9th</TagPill>}
+                                            {c.ten && <TagPill>10th</TagPill>}
+                                            {c.eleven && <TagPill>11th</TagPill>}
+                                            {c.twelve && <TagPill>12th</TagPill>}
+                                            {c.pg && <TagPill>PG</TagPill>}
+                                        </div>
+                                        <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1.5">
+                                            <MetaRow label="Code" value={c.code} />
+                                            <MetaRow label="Credit" value={c.credit} />
+                                            <MetaRow label="Department" value={c.dpt} />
+                                            <MetaRow label="Prereq" value={c.prereq || 'None'} />
+                                        </dl>
+                                        {c.desc && (
+                                            <div className="mt-2.5 border-t border-black/15 pt-2.5 text-[0.9rem] leading-relaxed text-muted-foreground">
+                                                <span className="font-semibold text-foreground">Description: </span>
+                                                {c.desc}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
+            ) : (
             <div className="dir-grid">
-                <AnimatePresence mode="popLayout">
-                    {loading &&
-                        Array.from({ length: 6 }).map((_, i) => (
-                            <Skeleton key={i} className="h-56 w-full rounded-none" />
-                        ))}
-                    {!loading &&
-                        filtered.map((c, i) => (
-                            <motion.div
-                                key={(c.code || c.name || '') + i}
-                                layout
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.4) }}
-                                className="dir-card"
-                            >
+                {loading && !hasFetchedOnce.current &&
+                    Array.from({ length: 6 }).map((_, i) => (
+                        <Skeleton key={i} className="h-56 w-full rounded-none" />
+                    ))}
+                {(!loading || hasFetchedOnce.current) &&
+                    filtered.map((c, i) => (
+                        <motion.div
+                            key={(c.code || c.name || '') + i}
+                            initial={hasFetchedOnce.current ? false : { opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.4) }}
+                            className="dir-card"
+                        >
                                 <h3 className="mb-2.5 text-[1.15rem] font-bold leading-tight text-foreground">
                                     {c.name}
                                 </h3>
@@ -200,10 +266,10 @@ export default function Classes() {
                                         {c.desc}
                                     </div>
                                 )}
-                            </motion.div>
-                        ))}
-                </AnimatePresence>
+                        </motion.div>
+                    ))}
             </div>
+            )}
 
             {!loading && filtered.length === 0 && (
                 <motion.div
@@ -265,10 +331,12 @@ function TagPill({ children }: { children: React.ReactNode }) {
 function MetaRow({ label, value }: { label: string; value: string | null }) {
     return (
         <>
-            <dt className="pt-[2px] text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            <dt className="pt-[2px] text-[0.72rem] font-bold uppercase tracking-[0.1em] text-navy">
                 {label}
             </dt>
-            <dd className="text-[0.9rem] leading-tight text-foreground">{value || '—'}</dd>
+            <dd className="text-[0.88rem] font-normal leading-tight text-muted-foreground">
+                {value || '—'}
+            </dd>
         </>
     )
 }

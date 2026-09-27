@@ -222,10 +222,10 @@ export default function CampusMap() {
                                 <MetaRow label="Supervisor" value={detail.job.supervisor} />
                                 {detail.job.supervisor_email && (
                                     <>
-                                        <dt className="pt-[2px] text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                                        <dt className="pt-[2px] text-[0.72rem] font-bold uppercase tracking-[0.1em] text-navy">
                                             Email
                                         </dt>
-                                        <dd className="text-[0.92rem] leading-tight text-foreground">
+                                        <dd className="text-[0.88rem] font-normal leading-tight text-muted-foreground">
                                             <a
                                                 href={`mailto:${detail.job.supervisor_email}`}
                                                 className="font-medium text-navy hover:underline"
@@ -266,10 +266,12 @@ function MetaRow({ label, value }: { label: string; value: string | null }) {
     if (!value) return null
     return (
         <>
-            <dt className="pt-[2px] text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            <dt className="pt-[2px] text-[0.72rem] font-bold uppercase tracking-[0.1em] text-navy">
                 {label}
             </dt>
-            <dd className="text-[0.92rem] leading-tight text-foreground">{value}</dd>
+            <dd className="text-[0.88rem] font-normal leading-tight text-muted-foreground">
+                {value}
+            </dd>
         </>
     )
 }

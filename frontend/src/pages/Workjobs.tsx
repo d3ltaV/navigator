@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Search } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
+import { ChevronRight, Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ViewToggle, useViewMode } from '@/components/ViewToggle'
 
 type WorkjobRow = {
     name: string | null
@@ -21,6 +22,10 @@ export default function Workjobs() {
     const [total, setTotal] = useState(0)
     const [loading, setLoading] = useState(true)
     const [query, setQuery] = useState('')
+    const [debouncedQuery, setDebouncedQuery] = useState('')
+    const [view, setView] = useViewMode('workjobsView')
+    const [expanded, setExpanded] = useState<number | null>(null)
+    const hasFetchedOnce = useRef(false)
 
     // First load — total count baseline.
     useEffect(() => {
@@ -29,10 +34,16 @@ export default function Workjobs() {
             .then((data: WorkjobRow[]) => setTotal(data.length))
     }, [])
 
+    // Debounce the search input.
+    useEffect(() => {
+        const t = setTimeout(() => setDebouncedQuery(query), 200)
+        return () => clearTimeout(t)
+    }, [query])
+
     // Search / filter fetch.
     useEffect(() => {
         setLoading(true)
-        const q = query.trim()
+        const q = debouncedQuery.trim()
         const url = q
             ? `/api/search?q=${encodeURIComponent(q)}&s=workjobs`
             : '/api/search?s=workjobs'
@@ -41,8 +52,9 @@ export default function Workjobs() {
             .then((data: WorkjobRow[]) => {
                 setRows(data)
                 setLoading(false)
+                hasFetchedOnce.current = true
             })
-    }, [query])
+    }, [debouncedQuery])
 
     return (
         <div
@@ -72,13 +84,16 @@ export default function Workjobs() {
                     />
                 </div>
 
-                <p className="mt-1 text-[0.88rem] font-normal text-muted-foreground">
-                    {loading
-                        ? 'Loading workjobs...'
-                        : rows.length === total
-                        ? 'Showing all workjobs!'
-                        : `Showing ${rows.length} of ${total} workjob${total !== 1 ? 's' : ''}`}
-                </p>
+                <div className="results-info-row">
+                    <p className="text-[0.88rem] font-normal text-muted-foreground">
+                        {loading
+                            ? 'Loading workjobs...'
+                            : rows.length === total
+                            ? 'Showing all workjobs!'
+                            : `Showing ${rows.length} of ${total} workjob${total !== 1 ? 's' : ''}`}
+                    </p>
+                    <ViewToggle mode={view} onChange={setView} />
+                </div>
             </motion.div>
 
             {/* Advisory notice — matches the Flask disclaimer. */}
@@ -89,23 +104,59 @@ export default function Workjobs() {
                 <span>This is for informational purposes only. Please do not excessively request workjobs.</span>
             </div>
 
+            {view === 'list' ? (
+                <div className="dir-list">
+                    {rows.map((j, i) => {
+                        const isOpen = expanded === i
+                        return (
+                            <div key={(j.name || '') + i} className="dir-list-item">
+                                <button
+                                    type="button"
+                                    className="dir-list-row"
+                                    aria-expanded={isOpen}
+                                    onClick={() => setExpanded(isOpen ? null : i)}
+                                >
+                                    <span className="dir-list-title">{j.name || 'Untitled Position'}</span>
+                                    <span className="dir-list-meta">
+                                        {j.location && <span className="pill">{j.location}</span>}
+                                    </span>
+                                    <ChevronRight className="dir-list-caret h-4 w-4" />
+                                </button>
+                                {isOpen && (
+                                    <div className="dir-list-detail">
+                                        {j.description && (
+                                            <div className="mt-1 border-t border-black/15 pt-2.5 text-[0.9rem] leading-relaxed text-muted-foreground">
+                                                <span className="font-semibold text-foreground">Description: </span>
+                                                {j.description}
+                                            </div>
+                                        )}
+                                        {j.notes && (
+                                            <div className="mt-2 text-[0.9rem] leading-relaxed text-muted-foreground">
+                                                <span className="font-semibold text-foreground">Note: </span>
+                                                {j.notes}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
+            ) : (
             <div className="dir-grid">
-                <AnimatePresence mode="popLayout">
-                    {loading &&
-                        Array.from({ length: 6 }).map((_, i) => (
-                            <Skeleton key={i} className="h-56 w-full rounded-none" />
-                        ))}
-                    {!loading &&
-                        rows.map((j, i) => (
-                            <motion.div
-                                key={(j.name || '') + i}
-                                layout
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.4) }}
-                                className="dir-card"
-                            >
+                {loading && !hasFetchedOnce.current &&
+                    Array.from({ length: 6 }).map((_, i) => (
+                        <Skeleton key={i} className="h-56 w-full rounded-none" />
+                    ))}
+                {(!loading || hasFetchedOnce.current) &&
+                    rows.map((j, i) => (
+                        <motion.div
+                            key={(j.name || '') + i}
+                            initial={hasFetchedOnce.current ? false : { opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.4) }}
+                            className="dir-card"
+                        >
                                 <h3 className="mb-2.5 text-[1.15rem] font-bold leading-tight text-foreground">
                                     {j.name || 'Untitled Position'}
                                 </h3>
@@ -127,10 +178,10 @@ export default function Workjobs() {
                                         {j.notes}
                                     </div>
                                 )}
-                            </motion.div>
-                        ))}
-                </AnimatePresence>
+                        </motion.div>
+                    ))}
             </div>
+            )}
 
             {!loading && rows.length === 0 && (
                 <motion.div

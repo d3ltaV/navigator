@@ -25,7 +25,17 @@
             </sl-select>
             <sl-checkbox id="descendingCheck" size="small">Descending</sl-checkbox>
         </div>
-        <div class="results-info" id="resultsInfo">Loading Clubs...</div>
+        <div class="results-info-row">
+            <div class="results-info" id="resultsInfo">Loading Clubs...</div>
+            <div class="view-toggle" role="group" aria-label="View mode">
+                <button type="button" id="viewList" aria-pressed="true" title="List view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+                <button type="button" id="viewGrid" aria-pressed="false" title="Grid view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+                </button>
+            </div>
+        </div>
     </div>
 
     <div class="classes-grid" id="classesGrid">

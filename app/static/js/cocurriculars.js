@@ -1,49 +1,96 @@
 let allCocurriculars = [];
+let currentCocurriculars = [];
+let viewMode = localStorage.getItem('cocurricularsView') || 'list';
+let hasRevealed = false;
+let searchDebounce = null;
 
 function loadCocurriculars() {
     fetch('/api/search?s=cocurriculars')
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
             allCocurriculars = data;
-            displayCocurriculars(allCocurriculars);
-            updateResultsInfo(allCocurriculars.length, allCocurriculars.length);
+            currentCocurriculars = data;
+            displayCocurriculars(currentCocurriculars);
+            updateResultsInfo(currentCocurriculars.length, allCocurriculars.length);
         });
 }
 
 function searchCocurriculars(query) {
     fetch('/api/search?q=' + encodeURIComponent(query) + '&s=cocurriculars')
-        .then(response => response.json())
+        .then(r => r.json())
         .then(results => {
-            displayCocurriculars(results);
-            updateResultsInfo(results.length, allCocurriculars.length);
+            currentCocurriculars = results;
+            displayCocurriculars(currentCocurriculars);
+            updateResultsInfo(currentCocurriculars.length, allCocurriculars.length);
         });
 }
 
-function displayCocurriculars(cocurriculars) {
-    const grid = document.getElementById('cocurricularsGrid');
+function renderCards(items) {
+    let html = '';
+    for (const c of items) {
+        html += '<div class="cocurricular-card">';
+        html += '<div class="cocurricular-title">' + (c.name || 'Untitled Position') + '</div>';
+        html += '<div class="card-divider"></div>';
+        html += '<div class="card-meta">';
+        html += '<div class="cocurricular-info"><strong>Category</strong><span>' + (c.category || '—') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Season</strong><span>' + (c.season || '—') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Prereq</strong><span>' + (c.prerequisites || 'None') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Location</strong><span>' + (c.location || 'TBD') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Schedule</strong><span>' + (c.schedule || 'TBD') + '</span></div>';
+        html += '</div></div>';
+    }
+    return '<div class="dir-grid">' + html + '</div>';
+}
 
-    if (cocurriculars.length === 0) {
+function renderList(items) {
+    let html = '<div class="dir-list">';
+    for (let i = 0; i < items.length; i++) {
+        const c = items[i];
+        const rowId = 'co-row-' + i;
+        html += '<div class="dir-list-item">';
+        html += '<button class="dir-list-row" type="button" aria-expanded="false" aria-controls="' + rowId + '">';
+        html += '<span class="dir-list-title">' + (c.name || 'Untitled Position') + '</span>';
+        html += '<span class="dir-list-meta">';
+        if (c.category) html += '<span class="pill">' + c.category + '</span>';
+        html += '</span>';
+        html += '<svg class="dir-list-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+        html += '</button>';
+        html += '<div class="dir-list-detail" id="' + rowId + '" hidden>';
+        html += '<div class="card-meta">';
+        html += '<div class="cocurricular-info"><strong>Category</strong><span>' + (c.category || '—') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Season</strong><span>' + (c.season || '—') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Prereq</strong><span>' + (c.prerequisites || 'None') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Location</strong><span>' + (c.location || 'TBD') + '</span></div>';
+        html += '<div class="cocurricular-info"><strong>Schedule</strong><span>' + (c.schedule || 'TBD') + '</span></div>';
+        html += '</div>';
+        html += '</div></div>';
+    }
+    return html + '</div>';
+}
+
+function displayCocurriculars(items) {
+    const grid = document.getElementById('cocurricularsGrid');
+    if (items.length === 0) {
         grid.innerHTML = '<div class="no-results"><h2>No cocurriculars found</h2><p>Try adjusting your search terms</p></div>';
         return;
     }
-
-    let html = '';
-    for (let i = 0; i < cocurriculars.length; i++) {
-        const cocurricular = cocurriculars[i];
-        html += '<div class="cocurricular-card">';
-        html += '<div class="cocurricular-title">' + (cocurricular.name || 'Untitled Position') + '</div>';
-        html += '<div class="card-divider"></div>';
-        html += '<div class="card-meta">';
-        html += '<div class="cocurricular-info"><strong>Category</strong><span>' + (cocurricular.category || '—') + '</span></div>';
-        html += '<div class="cocurricular-info"><strong>Season</strong><span>' + (cocurricular.season || '—') + '</span></div>';
-        html += '<div class="cocurricular-info"><strong>Prereq</strong><span>' + (cocurricular.prerequisites || 'None') + '</span></div>';
-        html += '<div class="cocurricular-info"><strong>Location</strong><span>' + (cocurricular.location || 'TBD') + '</span></div>';
-        html += '<div class="cocurricular-info"><strong>Schedule</strong><span>' + (cocurricular.schedule || 'TBD') + '</span></div>';
-        html += '</div>';
-        html += '</div>';
+    grid.innerHTML = viewMode === 'grid' ? renderCards(items) : renderList(items);
+    wireListToggles(grid);
+    if (!hasRevealed && viewMode === 'grid') {
+        revealCards(grid.querySelectorAll('.cocurricular-card'));
+        hasRevealed = true;
     }
-    grid.innerHTML = html;
-    revealCards(grid.querySelectorAll('.cocurricular-card'));
+}
+
+function wireListToggles(grid) {
+    grid.querySelectorAll('.dir-list-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const isOpen = row.getAttribute('aria-expanded') === 'true';
+            row.setAttribute('aria-expanded', String(!isOpen));
+            const detail = row.parentElement.querySelector('.dir-list-detail');
+            if (detail) detail.hidden = isOpen;
+        });
+    });
 }
 
 function revealCards(cards) {
@@ -62,13 +109,25 @@ function updateResultsInfo(shown, total) {
 }
 
 function handleSearch() {
-    const query = document.getElementById('searchBox').value.trim();
-    if (query) {
-        searchCocurriculars(query);
-    } else {
-        displayCocurriculars(allCocurriculars);
-        updateResultsInfo(allCocurriculars.length, allCocurriculars.length);
-    }
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => {
+        const query = document.getElementById('searchBox').value.trim();
+        if (query) {
+            searchCocurriculars(query);
+        } else {
+            currentCocurriculars = allCocurriculars;
+            displayCocurriculars(currentCocurriculars);
+            updateResultsInfo(currentCocurriculars.length, allCocurriculars.length);
+        }
+    }, 200);
+}
+
+function setViewMode(mode) {
+    viewMode = mode;
+    localStorage.setItem('cocurricularsView', mode);
+    document.getElementById('viewList').setAttribute('aria-pressed', String(mode === 'list'));
+    document.getElementById('viewGrid').setAttribute('aria-pressed', String(mode === 'grid'));
+    if (currentCocurriculars.length) displayCocurriculars(currentCocurriculars);
 }
 
 async function bootstrap() {
@@ -76,6 +135,9 @@ async function bootstrap() {
         await customElements.whenDefined('sl-input');
     }
     document.getElementById('searchBox').addEventListener('sl-input', handleSearch);
+    document.getElementById('viewList').addEventListener('click', () => setViewMode('list'));
+    document.getElementById('viewGrid').addEventListener('click', () => setViewMode('grid'));
+    setViewMode(viewMode);
     loadCocurriculars();
 }
 

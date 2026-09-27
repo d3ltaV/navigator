@@ -72,7 +72,8 @@
 .scene-bg__art {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, #f6d1c0 0%, #eabca8 55%, #6a5c58 100%);
+    /* Cool twilight fill for the night default; warms into sunrise at the bottom. */
+    background: linear-gradient(180deg, #3a3350 0%, #6a5c58 40%, #eabca8 80%, #f6d1c0 100%);
     animation: scene-pan 60s ease-in-out infinite alternate;
 }
 
@@ -89,21 +90,22 @@
 }
 
 .scene-layer--sunset { z-index: 1; }
-.scene-layer--night  { z-index: 2; opacity: var(--scroll-t); }
+.scene-layer--night  { z-index: 2; opacity: calc(1 - var(--scroll-t)); }
 .scene-layer--sun {
     z-index: 3;
-    transform: translateY(calc(var(--scroll-t) * 55vh));
-    opacity: calc(1.15 - var(--scroll-t) * 2);
+    /* Rises from below the viewport as user scrolls. */
+    transform: translateY(calc((1 - var(--scroll-t)) * 55vh));
+    opacity: calc(var(--scroll-t) * 1.4 - 0.15);
 }
 .scene-layer--stars {
     z-index: 4;
-    opacity: calc(var(--scroll-t) * 0.95);
-    transform: translateY(calc((1 - var(--scroll-t)) * 12vh));
+    opacity: calc((1 - var(--scroll-t)) * 0.95);
+    transform: translateY(calc(var(--scroll-t) * 12vh));
 }
 .scene-layer--moon {
     z-index: 5;
-    opacity: var(--scroll-t);
-    transform: translateY(calc((1 - var(--scroll-t)) * 8vh));
+    opacity: calc(1 - var(--scroll-t));
+    transform: translateY(calc(var(--scroll-t) * 8vh));
 }
 
 .scene-bg__haze {
@@ -138,9 +140,10 @@
     background-position: center;
     background-size: contain;
     opacity: 0;
+    /* Petals full pink at rest (night), desaturate as sunrise takes over. */
     filter:
-        saturate(calc(0.32 + var(--scroll-t) * 0.85))
-        brightness(calc(1.22 - var(--scroll-t) * 0.22));
+        saturate(calc(1.17 - var(--scroll-t) * 0.85))
+        brightness(calc(1.0 + var(--scroll-t) * 0.22));
     animation:
         leaf-fall var(--fall-dur, 18s) linear var(--fall-delay, 0s) infinite,
         leaf-sway var(--sway-dur, 4s) ease-in-out var(--sway-delay, 0s) infinite alternate;
@@ -175,15 +178,15 @@
     .scene-bg__art { animation: none; }
 }
 
-/* Header uses the sky as background — matches the Flask site. */
+/* Header uses the sky as background — cool twilight at rest, warms into sunrise. */
 .header-bg {
     background: linear-gradient(180deg,
         color-mix(in srgb,
-            rgba(240, 200, 195, 0.55),
-            rgba(190, 178, 220, 0.6) calc(var(--scroll-t) * 100%)),
+            rgba(190, 178, 220, 0.6),
+            rgba(240, 200, 195, 0.55) calc(var(--scroll-t) * 100%)),
         color-mix(in srgb,
-            rgba(220, 195, 205, 0.45),
-            rgba(210, 195, 225, 0.5) calc(var(--scroll-t) * 100%))
+            rgba(210, 195, 225, 0.5),
+            rgba(220, 195, 205, 0.45) calc(var(--scroll-t) * 100%))
     );
     backdrop-filter: blur(14px) saturate(1.1);
     -webkit-backdrop-filter: blur(14px) saturate(1.1);
@@ -360,6 +363,111 @@
     -webkit-backdrop-filter: blur(14px) saturate(1.05);
     color: hsl(var(--foreground));
     border-color: #1a2f5c;
+}
+
+/* ---------- View toggle + compact list ---------- */
+.view-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    margin-left: auto;
+    border: 1px solid rgba(26, 47, 92, 0.25);
+    background: rgba(255, 255, 255, 0.72);
+}
+.view-toggle button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: hsl(var(--muted-foreground));
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.view-toggle button svg { width: 16px; height: 16px; stroke-width: 2; }
+.view-toggle button:hover { color: #1a2f5c; }
+.view-toggle button[aria-pressed="true"] { background: #1a2f5c; color: #f4f2f8; }
+
+.results-info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.dir-list {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.62);
+    backdrop-filter: blur(6px) saturate(1.05);
+    -webkit-backdrop-filter: blur(6px) saturate(1.05);
+}
+.dir-list-item {
+    border-bottom: 1px solid rgba(27, 26, 43, 0.1);
+}
+.dir-list-item:last-child { border-bottom: none; }
+
+.dir-list-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.dir-list-row:hover { background: rgba(255, 255, 255, 0.55); }
+
+.dir-list-title {
+    flex: 1;
+    min-width: 0;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.98rem;
+    color: hsl(var(--foreground));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dir-list-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: hsl(var(--muted-foreground));
+}
+.dir-list-meta .pill {
+    padding: 3px 9px;
+    border: 1px solid rgba(26, 47, 92, 0.15);
+    background: rgba(255, 255, 255, 0.72);
+    color: #1a2f5c;
+    font: 600 0.64rem/1 'Inter', sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.dir-list-caret {
+    color: hsl(var(--muted-foreground));
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+}
+.dir-list-row[aria-expanded="true"] .dir-list-caret {
+    transform: rotate(90deg);
+    color: #1a2f5c;
+}
+
+.dir-list-detail {
+    padding: 4px 18px 16px 18px;
+    background: rgba(255, 255, 255, 0.4);
 }
 
 /* Rectangular map pins — used by CampusMap for AdvancedMarkerElement content. */

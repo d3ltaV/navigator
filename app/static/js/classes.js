@@ -97,21 +97,17 @@ function sortAndDisplay() {
     updateResultsInfo(filtered.length, allClasses.length);
 }
 
-function displayClasses(classes) {
-    const grid = document.getElementById('classesGrid');
-    if (classes.length === 0) {
-        grid.innerHTML = '<div class="no-results"><h2>No classes found</h2><p>Try adjusting your search terms or filters</p></div>';
-        return;
-    }
+let hasRevealed = false;
+let searchDebounce = null;
+let viewMode = localStorage.getItem('classesView') || 'list';
+let currentClasses = [];
 
+function renderClassCards(classes) {
     let html = '';
-    for (let i = 0; i < classes.length; i++) {
-        const c = classes[i];
+    for (const c of classes) {
         if (!c.name) continue;
-
         html += '<div class="class-card">';
         html += '<div class="class-title">' + c.name + '</div>';
-
         html += '<div class="tags">';
         if (c.nine)   html += '<button type="button">9th</button>';
         if (c.ten)    html += '<button type="button">10th</button>';
@@ -120,23 +116,90 @@ function displayClasses(classes) {
         if (c.pg)     html += '<button type="button">PG</button>';
         if (c.ncaa)   html += '<button type="button" class="n">NCAA</button>';
         html += '</div>';
-
         html += '<div class="card-meta">';
         html += '<div class="class-info"><strong>Code</strong><span>' + (c.code || 'Unknown') + '</span></div>';
         html += '<div class="class-info"><strong>Credit</strong><span>' + (c.credit || 'Unknown') + '</span></div>';
         html += '<div class="class-info"><strong>Department</strong><span>' + (c.dpt || 'Unknown') + '</span></div>';
         html += '<div class="class-info"><strong>Prereq</strong><span>' + (c.prereq || 'None') + '</span></div>';
         html += '</div>';
-
         if (c.desc) {
             html += '<div class="card-description"><strong>Description:</strong> ' + c.desc + '</div>';
         }
-
         html += '</div>';
     }
+    return '<div class="dir-grid">' + html + '</div>';
+}
 
-    grid.innerHTML = html;
-    revealCards(grid.querySelectorAll('.class-card'));
+function renderClassList(classes) {
+    let html = '<div class="dir-list">';
+    let idx = 0;
+    for (const c of classes) {
+        if (!c.name) continue;
+        const rowId = 'cl-row-' + idx++;
+        html += '<div class="dir-list-item">';
+        html += '<button class="dir-list-row" type="button" aria-expanded="false" aria-controls="' + rowId + '">';
+        html += '<span class="dir-list-title">' + c.name + '</span>';
+        html += '<span class="dir-list-meta">';
+        if (c.code) html += '<span class="pill">' + c.code + '</span>';
+        if (c.ncaa) html += '<span class="pill" style="background:#1a2f5c;color:#f4f2f8;border-color:#1a2f5c">NCAA</span>';
+        html += '</span>';
+        html += '<svg class="dir-list-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+        html += '</button>';
+        html += '<div class="dir-list-detail" id="' + rowId + '" hidden>';
+        html += '<div class="tags" style="margin-bottom:10px">';
+        if (c.nine)   html += '<button type="button">9th</button>';
+        if (c.ten)    html += '<button type="button">10th</button>';
+        if (c.eleven) html += '<button type="button">11th</button>';
+        if (c.twelve) html += '<button type="button">12th</button>';
+        if (c.pg)     html += '<button type="button">PG</button>';
+        if (c.ncaa)   html += '<button type="button" class="n">NCAA</button>';
+        html += '</div>';
+        html += '<div class="card-meta">';
+        html += '<div class="class-info"><strong>Code</strong><span>' + (c.code || 'Unknown') + '</span></div>';
+        html += '<div class="class-info"><strong>Credit</strong><span>' + (c.credit || 'Unknown') + '</span></div>';
+        html += '<div class="class-info"><strong>Department</strong><span>' + (c.dpt || 'Unknown') + '</span></div>';
+        html += '<div class="class-info"><strong>Prereq</strong><span>' + (c.prereq || 'None') + '</span></div>';
+        html += '</div>';
+        if (c.desc) {
+            html += '<div class="card-description"><strong>Description:</strong> ' + c.desc + '</div>';
+        }
+        html += '</div></div>';
+    }
+    return html + '</div>';
+}
+
+function wireListToggles(grid) {
+    grid.querySelectorAll('.dir-list-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const isOpen = row.getAttribute('aria-expanded') === 'true';
+            row.setAttribute('aria-expanded', String(!isOpen));
+            const detail = row.parentElement.querySelector('.dir-list-detail');
+            if (detail) detail.hidden = isOpen;
+        });
+    });
+}
+
+function displayClasses(classes) {
+    currentClasses = classes;
+    const grid = document.getElementById('classesGrid');
+    if (classes.length === 0) {
+        grid.innerHTML = '<div class="no-results"><h2>No classes found</h2><p>Try adjusting your search terms or filters</p></div>';
+        return;
+    }
+    grid.innerHTML = viewMode === 'grid' ? renderClassCards(classes) : renderClassList(classes);
+    wireListToggles(grid);
+    if (!hasRevealed && viewMode === 'grid') {
+        revealCards(grid.querySelectorAll('.class-card'));
+        hasRevealed = true;
+    }
+}
+
+function setViewMode(mode) {
+    viewMode = mode;
+    localStorage.setItem('classesView', mode);
+    document.getElementById('viewList').setAttribute('aria-pressed', String(mode === 'list'));
+    document.getElementById('viewGrid').setAttribute('aria-pressed', String(mode === 'grid'));
+    if (currentClasses.length) displayClasses(currentClasses);
 }
 
 function revealCards(cards) {
@@ -155,12 +218,15 @@ function updateResultsInfo(shown, total) {
 }
 
 function handleSearch() {
-    const query = document.getElementById('searchBox').value.trim();
-    if (query) {
-        searchClasses(query);
-    } else {
-        sortAndDisplay();
-    }
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => {
+        const query = document.getElementById('searchBox').value.trim();
+        if (query) {
+            searchClasses(query);
+        } else {
+            sortAndDisplay();
+        }
+    }, 200);
 }
 
 function handleSubjectFilter() {
@@ -195,6 +261,9 @@ async function bootstrap() {
     document.getElementById('departmentFilter').addEventListener('sl-change', handleDepartmentFilter);
     document.getElementById('sortSelect').addEventListener('sl-change', handleSort);
     document.getElementById('descendingCheck').addEventListener('sl-change', handleSort);
+    document.getElementById('viewList').addEventListener('click', () => setViewMode('list'));
+    document.getElementById('viewGrid').addEventListener('click', () => setViewMode('grid'));
+    setViewMode(viewMode);
 
     loadClasses();
 }

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Search } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
+import { ChevronRight, Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
     Select,
@@ -12,6 +12,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
+import { ViewToggle, useViewMode } from '@/components/ViewToggle'
 
 type ClubRow = {
     'Name of Club'?: string
@@ -27,8 +28,12 @@ export default function Clubs() {
     const [total, setTotal] = useState(0)
     const [loading, setLoading] = useState(true)
     const [query, setQuery] = useState('')
+    const [debouncedQuery, setDebouncedQuery] = useState('')
     const [sort, setSort] = useState<SortKey>('name')
     const [descending, setDescending] = useState(false)
+    const [view, setView] = useViewMode('clubsView')
+    const [expanded, setExpanded] = useState<number | null>(null)
+    const hasFetchedOnce = useRef(false)
 
     useEffect(() => {
         fetch('/api/search?s=clubs')
@@ -37,16 +42,22 @@ export default function Clubs() {
     }, [])
 
     useEffect(() => {
+        const t = setTimeout(() => setDebouncedQuery(query), 200)
+        return () => clearTimeout(t)
+    }, [query])
+
+    useEffect(() => {
         setLoading(true)
-        const q = query.trim()
+        const q = debouncedQuery.trim()
         const url = q ? `/api/search?q=${encodeURIComponent(q)}&s=clubs` : '/api/search?s=clubs'
         fetch(url)
             .then((r) => r.json())
             .then((data: ClubRow[]) => {
                 setRows(data)
                 setLoading(false)
+                hasFetchedOnce.current = true
             })
-    }, [query])
+    }, [debouncedQuery])
 
     const sorted = useMemo(() => {
         const list = [...rows].sort((a, b) => {
@@ -104,38 +115,86 @@ export default function Clubs() {
                     </label>
                 </div>
 
-                <p className="mt-3 text-[0.88rem] font-normal text-muted-foreground">
-                    {loading
-                        ? 'Loading Clubs...'
-                        : sorted.length === total
-                        ? 'Showing all clubs!'
-                        : `Showing ${sorted.length} of ${total} club${total !== 1 ? 's' : ''}`}
-                </p>
+                <div className="results-info-row">
+                    <p className="text-[0.88rem] font-normal text-muted-foreground">
+                        {loading
+                            ? 'Loading Clubs...'
+                            : sorted.length === total
+                            ? 'Showing all clubs!'
+                            : `Showing ${sorted.length} of ${total} club${total !== 1 ? 's' : ''}`}
+                    </p>
+                    <ViewToggle mode={view} onChange={setView} />
+                </div>
             </motion.div>
 
-            <div className="dir-grid">
-                <AnimatePresence mode="popLayout">
-                    {loading &&
-                        Array.from({ length: 6 }).map((_, i) => (
-                            <Skeleton key={i} className="h-56 w-full rounded-none" />
-                        ))}
-                    {!loading &&
-                        sorted.map((c, i) => {
-                            const name = c['Name of Club']
-                            if (!name) return null
-                            const type = c['Type of Club']
-                            const meeting = c['Club Meeting Time and Location']
-                            const desc = c['Description of Club']
-                            return (
-                                <motion.div
-                                    key={name + i}
-                                    layout
-                                    initial={{ opacity: 0, y: 8 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.4) }}
-                                    className="dir-card"
+            {view === 'list' ? (
+                <div className="dir-list">
+                    {sorted.map((c, i) => {
+                        const name = c['Name of Club']
+                        if (!name) return null
+                        const type = c['Type of Club']
+                        const meeting = c['Club Meeting Time and Location']
+                        const desc = c['Description of Club']
+                        const isOpen = expanded === i
+                        return (
+                            <div key={name + i} className="dir-list-item">
+                                <button
+                                    type="button"
+                                    className="dir-list-row"
+                                    aria-expanded={isOpen}
+                                    onClick={() => setExpanded(isOpen ? null : i)}
                                 >
+                                    <span className="dir-list-title">{name}</span>
+                                    <span className="dir-list-meta">
+                                        {type && <span className="pill">{type}</span>}
+                                    </span>
+                                    <ChevronRight className="dir-list-caret h-4 w-4" />
+                                </button>
+                                {isOpen && (
+                                    <div className="dir-list-detail">
+                                        {meeting && (
+                                            <dl className="mt-1 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1.5">
+                                                <dt className="pt-[2px] text-[0.72rem] font-bold uppercase tracking-[0.1em] text-navy">
+                                                    Meeting
+                                                </dt>
+                                                <dd className="text-[0.88rem] font-normal leading-tight text-muted-foreground">
+                                                    {meeting}
+                                                </dd>
+                                            </dl>
+                                        )}
+                                        {desc && (
+                                            <div className="mt-2.5 border-t border-black/15 pt-2.5 text-[0.9rem] leading-relaxed text-muted-foreground">
+                                                <span className="font-semibold text-foreground">Description: </span>
+                                                {desc}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
+            ) : (
+            <div className="dir-grid">
+                {loading && !hasFetchedOnce.current &&
+                    Array.from({ length: 6 }).map((_, i) => (
+                        <Skeleton key={i} className="h-56 w-full rounded-none" />
+                    ))}
+                {(!loading || hasFetchedOnce.current) &&
+                    sorted.map((c, i) => {
+                        const name = c['Name of Club']
+                        if (!name) return null
+                        const type = c['Type of Club']
+                        const meeting = c['Club Meeting Time and Location']
+                        const desc = c['Description of Club']
+                        return (
+                            <motion.div
+                                key={name + i}
+                                initial={hasFetchedOnce.current ? false : { opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.4) }}
+                                className="dir-card"
+                            >
                                     <h3 className="mb-2.5 text-[1.15rem] font-bold leading-tight text-foreground">
                                         {name}
                                     </h3>
@@ -148,10 +207,12 @@ export default function Clubs() {
 
                                     {meeting && (
                                         <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1.5">
-                                            <dt className="pt-[2px] text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                                            <dt className="pt-[2px] text-[0.72rem] font-bold uppercase tracking-[0.1em] text-navy">
                                                 Meeting
                                             </dt>
-                                            <dd className="text-[0.9rem] leading-tight text-foreground">{meeting}</dd>
+                                            <dd className="text-[0.88rem] font-normal leading-tight text-muted-foreground">
+                                                {meeting}
+                                            </dd>
                                         </dl>
                                     )}
 
@@ -164,11 +225,11 @@ export default function Clubs() {
                                             </div>
                                         </>
                                     )}
-                                </motion.div>
-                            )
-                        })}
-                </AnimatePresence>
+                            </motion.div>
+                        )
+                    })}
             </div>
+            )}
 
             {!loading && sorted.length === 0 && (
                 <motion.div

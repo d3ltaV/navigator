@@ -6,13 +6,14 @@ import { motion } from 'framer-motion'
 // `:nth-child(4n)` tic-tac-toe border rules to hit).
 const MotionLink = motion(Link)
 
+// Classes + Cocurriculars are hidden until their data feeds are ready.
 const features = [
     { num: '01', title: 'Campus map', body: 'Click any building to see the workjobs based there.', to: '/map' },
-    { num: '02', title: 'Classes', body: 'Search, filter by subject and sort the whole catalog.', to: '/classes' },
-    { num: '03', title: 'Workjobs', body: 'Every job, supervisor, block and open spot.', to: '/workjobs' },
-    { num: '04', title: 'Cocurriculars', body: 'PEs and seasonal activities by category.', to: '/cocurriculars' },
-    { num: '05', title: 'Clubs', body: 'Every student club, meeting time and description.', to: '/clubs' },
-    { num: '06', title: 'Resources', body: 'Official NMH links, including Hogger News.', to: '/resources' },
+    { num: '02', title: 'Workjobs', body: 'Every job, supervisor, block and open spot.', to: '/workjobs' },
+    { num: '03', title: 'Clubs', body: 'Every student club, meeting time and description.', to: '/clubs' },
+    { num: '04', title: 'Resources', body: 'Official NMH links, including Hogger News.', to: '/resources' },
+    // { num: 'XX', title: 'Classes', body: 'Search, filter by subject and sort the whole catalog.', to: '/classes' },
+    // { num: 'XX', title: 'Cocurriculars', body: 'PEs and seasonal activities by category.', to: '/cocurriculars' },
 ]
 
 // Hero title tokens — each word cascades letter-by-letter from the left.
@@ -89,7 +90,7 @@ export default function Home() {
                         className="flex flex-wrap gap-3.5"
                     >
                         <Link to="/map" className="btn">Explore the map</Link>
-                        <Link to="/classes" className="btn btn--ghost">Browse classes</Link>
+                        <Link to="/clubs" className="btn btn--ghost">Browse clubs</Link>
                     </motion.div>
                 </div>
 

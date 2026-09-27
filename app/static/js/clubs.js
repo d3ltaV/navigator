@@ -50,7 +50,78 @@ function sortAndDisplay() {
     updateResultsInfo(allClubs.length, allClubs.length);
 }
 
+let hasRevealed = false;
+let searchDebounce = null;
+let viewMode = localStorage.getItem('clubsView') || 'list';
+let currentClubs = [];
+
+function renderClubCards(clubs) {
+    let html = '';
+    for (const c of clubs) {
+        const name = c['Name of Club'];
+        if (!name) continue;
+        const type = c['Type of Club'];
+        const desc = c['Description of Club'];
+        const meeting = c['Club Meeting Time and Location'];
+        html += '<div class="class-card">';
+        html += '<div class="class-title">' + name + '</div>';
+        html += '<div class="tags">';
+        if (type) html += '<button type="button">' + type + '</button>';
+        html += '</div>';
+        if (meeting) {
+            html += '<div class="card-meta"><div class="class-info"><strong>Meeting</strong><span>' + meeting + '</span></div></div>';
+        }
+        if (desc) {
+            html += '<div class="card-description"><strong>Description:</strong> ' + desc + '</div>';
+        }
+        html += '</div>';
+    }
+    return '<div class="dir-grid">' + html + '</div>';
+}
+
+function renderClubList(clubs) {
+    let html = '<div class="dir-list">';
+    let idx = 0;
+    for (const c of clubs) {
+        const name = c['Name of Club'];
+        if (!name) continue;
+        const type = c['Type of Club'];
+        const desc = c['Description of Club'];
+        const meeting = c['Club Meeting Time and Location'];
+        const rowId = 'club-row-' + idx++;
+        html += '<div class="dir-list-item">';
+        html += '<button class="dir-list-row" type="button" aria-expanded="false" aria-controls="' + rowId + '">';
+        html += '<span class="dir-list-title">' + name + '</span>';
+        html += '<span class="dir-list-meta">';
+        if (type) html += '<span class="pill">' + type + '</span>';
+        html += '</span>';
+        html += '<svg class="dir-list-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+        html += '</button>';
+        html += '<div class="dir-list-detail" id="' + rowId + '" hidden>';
+        if (meeting) {
+            html += '<div class="card-meta"><div class="class-info"><strong>Meeting</strong><span>' + meeting + '</span></div></div>';
+        }
+        if (desc) {
+            html += '<div class="card-description"><strong>Description:</strong> ' + desc + '</div>';
+        }
+        html += '</div></div>';
+    }
+    return html + '</div>';
+}
+
+function wireListToggles(grid) {
+    grid.querySelectorAll('.dir-list-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const isOpen = row.getAttribute('aria-expanded') === 'true';
+            row.setAttribute('aria-expanded', String(!isOpen));
+            const detail = row.parentElement.querySelector('.dir-list-detail');
+            if (detail) detail.hidden = isOpen;
+        });
+    });
+}
+
 function displayClubs(clubs) {
+    currentClubs = clubs;
     const grid = document.getElementById('classesGrid');
 
     if (clubs.length === 0) {
@@ -58,41 +129,20 @@ function displayClubs(clubs) {
             '<div class="no-results"><h2>No clubs found</h2><p>Try adjusting your search terms</p></div>';
         return;
     }
-
-    let html = '';
-    for (let i = 0; i < clubs.length; i++) {
-        const c = clubs[i];
-        const name = c['Name of Club'];
-        const type = c['Type of Club'];
-        const desc = c['Description of Club'];
-        const meeting = c['Club Meeting Time and Location'];
-
-        if (!name) continue;
-
-        html += '<div class="class-card">';
-        html += '<div class="class-title">' + (name || 'Untitled Club') + '</div>';
-
-        html += '<div class="tags">';
-        if (type) {
-            html += '<button type="button">' + type + '</button>';
-        }
-        html += '</div>';
-
-        if (meeting) {
-            html += '<div class="card-meta">';
-            html += '<div class="class-info"><strong>Meeting</strong><span>' + meeting + '</span></div>';
-            html += '</div>';
-        }
-
-        if (desc) {
-            html += '<div class="card-description"><strong>Description:</strong> ' + desc + '</div>';
-        }
-
-        html += '</div>';
+    grid.innerHTML = viewMode === 'grid' ? renderClubCards(clubs) : renderClubList(clubs);
+    wireListToggles(grid);
+    if (!hasRevealed && viewMode === 'grid') {
+        revealCards(grid.querySelectorAll('.class-card'));
+        hasRevealed = true;
     }
+}
 
-    grid.innerHTML = html;
-    revealCards(grid.querySelectorAll('.class-card'));
+function setViewMode(mode) {
+    viewMode = mode;
+    localStorage.setItem('clubsView', mode);
+    document.getElementById('viewList').setAttribute('aria-pressed', String(mode === 'list'));
+    document.getElementById('viewGrid').setAttribute('aria-pressed', String(mode === 'grid'));
+    if (currentClubs.length) displayClubs(currentClubs);
 }
 
 function revealCards(cards) {
@@ -111,12 +161,15 @@ function updateResultsInfo(shown, total) {
 }
 
 function handleSearch() {
-    const query = document.getElementById('searchBox').value.trim();
-    if (query) {
-        searchClubs(query);
-    } else {
-        sortAndDisplay();
-    }
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => {
+        const query = document.getElementById('searchBox').value.trim();
+        if (query) {
+            searchClubs(query);
+        } else {
+            sortAndDisplay();
+        }
+    }, 200);
 }
 
 function handleSort() {
@@ -136,6 +189,9 @@ async function bootstrap() {
     document.getElementById('searchBox').addEventListener('sl-input', handleSearch);
     document.getElementById('sortSelect').addEventListener('sl-change', handleSort);
     document.getElementById('descendingCheck').addEventListener('sl-change', handleSort);
+    document.getElementById('viewList').addEventListener('click', () => setViewMode('list'));
+    document.getElementById('viewGrid').addEventListener('click', () => setViewMode('grid'));
+    setViewMode(viewMode);
     loadClubs();
 }
 
