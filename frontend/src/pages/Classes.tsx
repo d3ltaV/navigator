@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronRight, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
     Select,
@@ -184,13 +184,13 @@ export default function Classes() {
                                         {c.ncaa && (
                                             <span
                                                 className="pill"
-                                                style={{ background: '#1a2f5c', color: '#f4f2f8', borderColor: '#1a2f5c' }}
+                                                style={{ background: '#1a2f5c', color: '#f4f2f8' }}
                                             >
                                                 NCAA
                                             </span>
                                         )}
                                     </span>
-                                    <ChevronRight className="dir-list-caret h-4 w-4" />
+                                    <span className="dir-list-arrow" aria-hidden>→</span>
                                 </button>
                                 {isOpen && (
                                     <div className="dir-list-detail">
@@ -321,7 +321,7 @@ function ChipSelect({
 function TagPill({ children }: { children: React.ReactNode }) {
     return (
         <span
-            className="inline-block border border-navy/15 bg-white/72 px-2.5 py-[3px] text-[0.68rem] font-semibold uppercase tracking-[0.09em] text-navy"
+            className="inline-block bg-white/70 px-2.5 py-1 text-[0.66rem] font-semibold uppercase tracking-[0.09em] text-navy"
         >
             {children}
         </span>

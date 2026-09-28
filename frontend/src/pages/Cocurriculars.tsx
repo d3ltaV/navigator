@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronRight, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
@@ -107,7 +107,7 @@ export default function Cocurriculars() {
                                     <span className="dir-list-meta">
                                         {c.category && <span className="pill">{c.category}</span>}
                                     </span>
-                                    <ChevronRight className="dir-list-caret h-4 w-4" />
+                                    <span className="dir-list-arrow" aria-hidden>→</span>
                                 </button>
                                 {isOpen && (
                                     <div className="dir-list-detail">

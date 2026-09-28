@@ -95,7 +95,7 @@ function renderClubList(clubs) {
         html += '<span class="dir-list-meta">';
         if (type) html += '<span class="pill">' + type + '</span>';
         html += '</span>';
-        html += '<svg class="dir-list-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+        html += '<span class="dir-list-arrow" aria-hidden="true">&rarr;</span>';
         html += '</button>';
         html += '<div class="dir-list-detail" id="' + rowId + '" hidden>';
         if (meeting) {

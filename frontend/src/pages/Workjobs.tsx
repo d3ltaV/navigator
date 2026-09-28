@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronRight, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ViewToggle, useViewMode } from '@/components/ViewToggle'
@@ -120,7 +120,7 @@ export default function Workjobs() {
                                     <span className="dir-list-meta">
                                         {j.location && <span className="pill">{j.location}</span>}
                                     </span>
-                                    <ChevronRight className="dir-list-caret h-4 w-4" />
+                                    <span className="dir-list-arrow" aria-hidden>→</span>
                                 </button>
                                 {isOpen && (
                                     <div className="dir-list-detail">
@@ -161,7 +161,7 @@ export default function Workjobs() {
                                     {j.name || 'Untitled Position'}
                                 </h3>
 
-                                <span className="mb-3 inline-block self-start border border-navy/15 bg-white/72 px-2.5 py-[3px] text-[0.68rem] font-semibold uppercase tracking-[0.09em] text-navy">
+                                <span className="mb-3 inline-block self-start bg-white/70 px-2.5 py-1 text-[0.66rem] font-semibold uppercase tracking-[0.09em] text-navy">
                                     {j.location || 'Location TBD'}
                                 </span>
 

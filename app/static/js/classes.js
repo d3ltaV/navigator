@@ -141,9 +141,9 @@ function renderClassList(classes) {
         html += '<span class="dir-list-title">' + c.name + '</span>';
         html += '<span class="dir-list-meta">';
         if (c.code) html += '<span class="pill">' + c.code + '</span>';
-        if (c.ncaa) html += '<span class="pill" style="background:#1a2f5c;color:#f4f2f8;border-color:#1a2f5c">NCAA</span>';
+        if (c.ncaa) html += '<span class="pill" style="background:#1a2f5c;color:#f4f2f8">NCAA</span>';
         html += '</span>';
-        html += '<svg class="dir-list-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+        html += '<span class="dir-list-arrow" aria-hidden="true">&rarr;</span>';
         html += '</button>';
         html += '<div class="dir-list-detail" id="' + rowId + '" hidden>';
         html += '<div class="tags" style="margin-bottom:10px">';
