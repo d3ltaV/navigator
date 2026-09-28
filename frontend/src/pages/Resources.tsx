@@ -38,11 +38,6 @@ const SECTIONS: { title: string; links: Link[] }[] = [
                 title: 'NMH Athletics Page',
                 description: 'All information and updates about NMH athletic programs and teams.',
             },
-            {
-                href: 'https://docs.google.com/presentation/d/1-3-yKG-dlMXIGKlV-rQHi-m2vctYtNcur_ON5AJPHNw/edit?slide=id.g39b87ef4d76_0_125#slide=id.g39b87ef4d76_0_125',
-                title: '2025 Fall Recap Hogger News Sports',
-                description: 'Check out highlights from fall athletes!',
-            },
         ],
     },
     {
