@@ -6,6 +6,8 @@ gmp-map {
     width: 100vw;
 }
 
+// Default is navy like the home `.btn`; hover switches to the same frosted
+// translucent-white treatment as `.btn:hover`.
 .rect-pin {
     display: inline-flex;
     align-items: center;
@@ -20,13 +22,14 @@ gmp-map {
     line-height: 1.15;
     white-space: nowrap;
     cursor: pointer;
-    border: 1px solid rgba(26, 47, 92, 0.55);
-    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    border: none;
+    transition: background 0.18s ease, color 0.18s ease, backdrop-filter 0.18s ease;
 
     &:hover {
-        background: var(--sky);
+        background: rgba(255, 255, 255, 0.35);
+        backdrop-filter: blur(14px) saturate(1.05);
+        -webkit-backdrop-filter: blur(14px) saturate(1.05);
         color: var(--navy);
-        border-color: var(--navy);
     }
 }
 

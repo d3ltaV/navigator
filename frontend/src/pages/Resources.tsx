@@ -55,22 +55,6 @@ const SECTIONS: { title: string; links: Link[] }[] = [
                     "News for students, by students. Check out everything that's happening on campus weekly at Hogger News!",
             },
             {
-                href: 'https://studentclubs.nmhschool.org/',
-                title: 'Hogger News Club Database',
-                description:
-                    'All information on clubs can be found here (club descriptions, student leaders, faculty advisor, meeting times, etc.).',
-            },
-            {
-                href: 'https://mymenus.mgdining.com/northfield-mount-hermon/',
-                title: 'Dining Menu',
-                description: 'Daily menus for all NMH dining halls.',
-            },
-            {
-                href: 'https://theschauffler.org',
-                title: 'The Schauffler Review',
-                description: "NMH's student-run academic journal featuring research and scholarly work.",
-            },
-            {
                 href: 'https://aibot.nmhschool.org/',
                 title: 'NMH AI Bot',
                 description:

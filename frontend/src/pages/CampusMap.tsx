@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { setOptions, importLibrary } from '@googlemaps/js-api-loader'
@@ -37,8 +37,29 @@ const BOUNDS = { north: 42.72, south: 42.62, west: -72.545, east: -72.43 }
 
 export default function CampusMap() {
     const mapDivRef = useRef<HTMLDivElement>(null)
+    const cardRef = useRef<HTMLDivElement>(null)
     const [popup, setPopup] = useState<{ title: string; jobs: Workjob[] } | null>(null)
-    const [detail, setDetail] = useState<{ job: Workjob; all: Workjob[] } | null>(null)
+    const [detail, setDetail] = useState<{
+        job: Workjob
+        anchorX: number
+        anchorY: number
+    } | null>(null)
+    // Card top + triangle Y inside the card — measured after mount so tall
+    // content is nudged up to stay fully on screen.
+    const [pos, setPos] = useState<{ top: number; triangleTop: number }>({
+        top: 0,
+        triangleTop: 18,
+    })
+
+    useLayoutEffect(() => {
+        if (!detail || !cardRef.current) return
+        const height = cardRef.current.offsetHeight
+        const idealTop = detail.anchorY - 26
+        const maxTop = window.innerHeight - height - 20
+        const cardTop = Math.max(20, Math.min(idealTop, maxTop))
+        const triangleTop = Math.max(6, Math.min(height - 22, detail.anchorY - cardTop - 8))
+        setPos({ top: cardTop, triangleTop })
+    }, [detail])
 
     useEffect(() => {
         let cancelled = false
@@ -80,6 +101,9 @@ export default function CampusMap() {
                                     title,
                                     jobs: Array.isArray(data) ? data : [],
                                 })
+                                // Reset the detail drawer so the previous
+                                // location's workjob doesn't linger.
+                                setDetail(null)
                             })
                     })
                 })
@@ -91,166 +115,175 @@ export default function CampusMap() {
     }, [])
 
     return (
-        <div className="relative" style={{ padding: 'clamp(12px, 2vw, 24px)' }}>
+        <div
+            className="relative flex flex-col items-stretch gap-3 md:flex-row md:gap-6"
+            style={{ padding: 'clamp(12px, 2vw, 24px)' }}
+        >
+            {/* Location popup — inline left sidebar that pushes the map right when open. */}
+            <AnimatePresence initial={false}>
+                {popup && (
+                    <motion.aside
+                        key="workjob-sidebar"
+                        initial={{ opacity: 0, x: -16 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -16 }}
+                        transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                        className="relative order-first flex w-full shrink-0 flex-col overflow-hidden border-y border-r border-black/10 bg-white/[0.62] backdrop-blur-md backdrop-saturate-[1.08] md:-my-[clamp(12px,2vw,24px)] md:-ml-[clamp(12px,2vw,24px)] md:h-[calc(100vh-68px)] md:w-[320px]"
+                        style={{ minHeight: 320 }}
+                    >
+                        <button
+                            onClick={() => {
+                                setPopup(null)
+                                setDetail(null)
+                            }}
+                            aria-label="Close"
+                            className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center text-muted-foreground transition-colors hover:text-navy"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+
+                        <div className="flex-1 overflow-y-auto px-6 pb-6 pt-6">
+                            <h3
+                                className="pr-8 font-semibold leading-[1.15] tracking-tight text-foreground"
+                                style={{ fontSize: '1.5rem' }}
+                            >
+                                {popup.title}
+                            </h3>
+
+                            {popup.jobs.length > 0 ? (
+                                <>
+                                    <p className="mt-1 text-[0.78rem] text-muted-foreground">
+                                        {popup.jobs.length} workjob{popup.jobs.length !== 1 ? 's' : ''}
+                                    </p>
+                                    <div className="mt-4 flex flex-col">
+                                        {popup.jobs.map((j, idx) => {
+                                            const active = detail?.job.name === j.name
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    onClick={(e) => {
+                                                        const btn = e.currentTarget
+                                                        const linkRect = btn.getBoundingClientRect()
+                                                        const sidebar = btn.closest('aside')
+                                                        const anchorX = sidebar
+                                                            ? sidebar.getBoundingClientRect().right
+                                                            : linkRect.right
+                                                        setDetail({
+                                                            job: j,
+                                                            anchorX,
+                                                            anchorY: linkRect.top + linkRect.height / 2,
+                                                        })
+                                                    }}
+                                                    className={
+                                                        'group flex items-center justify-between border-t border-black/5 py-2.5 text-left text-[0.95rem] font-medium transition-colors first:border-t-0 ' +
+                                                        (active
+                                                            ? 'text-navy'
+                                                            : 'text-foreground hover:text-navy')
+                                                    }
+                                                >
+                                                    <span>{j.name ?? 'Unnamed Workjob'}</span>
+                                                    <span
+                                                        className={
+                                                            'transition-transform ' +
+                                                            (active
+                                                                ? 'translate-x-0.5 text-navy'
+                                                                : 'text-black/25 group-hover:translate-x-0.5 group-hover:text-navy')
+                                                        }
+                                                    >
+                                                        →
+                                                    </span>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="mt-3 text-[0.9rem] italic text-muted-foreground">
+                                    No workjobs found at this location.
+                                </p>
+                            )}
+                        </div>
+                    </motion.aside>
+                )}
+            </AnimatePresence>
+
             <div
                 ref={mapDivRef}
-                className="w-full border border-black/45 bg-white/40"
+                className="min-w-0 flex-1 border border-black/45 bg-white/40"
                 style={{
                     height: 'calc(100vh - 68px - 48px)',
                     minHeight: 420,
                 }}
             />
 
-            {/* Location popup — bottom-left frosted card. */}
-            <AnimatePresence>
-                {popup && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.22, ease: 'easeOut' }}
-                        className="fixed z-[1000] flex flex-col overflow-hidden border border-black/45 bg-white/72 backdrop-blur-2xl"
-                        style={{
-                            left: 'clamp(16px, 3vw, 32px)',
-                            bottom: 'clamp(16px, 3vh, 32px)',
-                            width: 'min(340px, calc(100vw - 32px))',
-                            maxHeight: '60vh',
-                        }}
-                    >
-                        <div className="flex shrink-0 items-center justify-between border-b border-black/15 px-[18px] py-[10px]">
-                            <p className="flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                                <span className="inline-block h-[6px] w-[6px] bg-navy" />
-                                Location
-                            </p>
-                            <button
-                                onClick={() => setPopup(null)}
-                                aria-label="Close"
-                                className="flex h-7 w-7 items-center justify-center border border-transparent text-muted-foreground transition-colors hover:border-navy hover:bg-sky hover:text-navy"
-                            >
-                                <X className="h-4 w-4" />
-                            </button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto px-[18px] pb-[18px] pt-[14px]">
-                            <h3 className="mb-3 font-semibold leading-tight tracking-tight text-foreground" style={{ fontSize: '1.35rem' }}>
-                                {popup.title}
-                            </h3>
-                            {popup.jobs.length > 0 ? (
-                                <>
-                                    <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                                        Workjobs at this location
-                                    </p>
-                                    <div className="flex flex-col gap-0.5">
-                                        {popup.jobs.map((j, idx) => (
-                                            <button
-                                                key={idx}
-                                                onClick={() => setDetail({ job: j, all: popup.jobs })}
-                                                className="border-l-2 border-transparent px-3 py-2 text-left text-[0.95rem] font-medium text-navy transition-colors hover:border-navy hover:bg-sky/40"
-                                            >
-                                                {j.name ?? 'Unnamed Workjob'}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </>
-                            ) : (
-                                <p className="mt-1 italic text-[0.9rem] text-muted-foreground">
-                                    No workjobs found at this location.
-                                </p>
-                            )}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Workjob detail modal — centered frosted card with tabs. */}
+            {/*
+             * Workjob detail — floating card that pops out of a triangle
+             * pointing at the sidebar arrow. The triangle butts up against
+             * the card with zero overlap, so translucent layers don't stack
+             * into a darker seam. Card top is measured after mount so long
+             * descriptions stay fully on screen.
+             */}
             <AnimatePresence>
                 {detail && (
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.22 }}
-                        className="fixed z-[1100] flex flex-col overflow-hidden border border-black/45 bg-white/72 backdrop-blur-2xl"
+                        ref={cardRef}
+                        key={detail.job.name ?? 'detail'}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0 }}
+                        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                        className="fixed z-[60] w-[280px] bg-white/75 backdrop-blur-md backdrop-saturate-[1.08]"
                         style={{
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            width: 'min(560px, calc(100vw - 32px))',
-                            maxHeight: '82vh',
+                            left: detail.anchorX + 12,
+                            top: pos.top,
+                            transformOrigin: `-8px ${pos.triangleTop + 8}px`,
                         }}
                     >
-                        <div className="flex shrink-0 items-center justify-between border-b border-black/15 px-[18px] py-[10px]">
-                            <p className="flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                                <span className="inline-block h-[6px] w-[6px] bg-navy" />
-                                Workjob
-                            </p>
-                            <button
-                                onClick={() => setDetail(null)}
-                                aria-label="Close"
-                                className="flex h-7 w-7 items-center justify-center border border-transparent text-muted-foreground transition-colors hover:border-navy hover:bg-sky hover:text-navy"
-                            >
-                                <X className="h-4 w-4" />
-                            </button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto px-[18px] pb-[18px] pt-[14px]">
-                            {detail.all.length > 1 && (
-                                <div className="mb-4 flex flex-wrap gap-1.5">
-                                    {detail.all.map((tab, idx) => {
-                                        const active = tab.name === detail.job.name
-                                        return (
-                                            <button
-                                                key={idx}
-                                                onClick={() => setDetail({ ...detail, job: tab })}
-                                                className={
-                                                    active
-                                                        ? 'border border-navy bg-navy px-3 py-1.5 text-[0.8rem] font-medium text-paper'
-                                                        : 'border border-navy/35 bg-white/50 px-3 py-1.5 text-[0.8rem] font-medium text-navy transition-colors hover:border-navy hover:bg-sky'
-                                                }
-                                            >
-                                                {tab.name}
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                            )}
+                        {/* Triangle tail — a CSS-border triangle. Its base
+                            (right edge) sits exactly at the card's left edge,
+                            so there is no translucent overlap. */}
+                        <span
+                            aria-hidden
+                            className="pointer-events-none absolute"
+                            style={{
+                                left: -8,
+                                top: pos.triangleTop,
+                                width: 0,
+                                height: 0,
+                                borderTop: '8px solid transparent',
+                                borderBottom: '8px solid transparent',
+                                borderRight: '8px solid rgba(255, 255, 255, 0.75)',
+                            }}
+                        />
 
-                            <h3 className="mb-3 text-[1.15rem] font-bold leading-tight text-foreground">
+                        <button
+                            onClick={() => setDetail(null)}
+                            aria-label="Close"
+                            className="absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center text-muted-foreground transition-colors hover:text-navy"
+                        >
+                            <X className="h-3.5 w-3.5" />
+                        </button>
+
+                        <div className="px-4 pb-4 pt-4">
+                            <h3
+                                className="pr-6 font-semibold leading-[1.2] tracking-tight text-foreground"
+                                style={{ fontSize: '1.05rem' }}
+                            >
                                 {detail.job.name ?? 'Untitled Workjob'}
                             </h3>
 
-                            <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1.5">
-                                <MetaRow label="Location" value={detail.job.location} />
-                                <MetaRow label="Supervisor" value={detail.job.supervisor} />
-                                {detail.job.supervisor_email && (
-                                    <>
-                                        <dt className="pt-[2px] text-[0.72rem] font-bold uppercase tracking-[0.1em] text-navy">
-                                            Email
-                                        </dt>
-                                        <dd className="text-[0.88rem] font-normal leading-tight text-muted-foreground">
-                                            <a
-                                                href={`mailto:${detail.job.supervisor_email}`}
-                                                className="font-medium text-navy hover:underline"
-                                            >
-                                                {detail.job.supervisor_email}
-                                            </a>
-                                        </dd>
-                                    </>
-                                )}
-                                <MetaRow label="Spots" value={detail.job.spots} />
-                                <MetaRow label="Blocks" value={detail.job.blocks} />
-                                <MetaRow label="Type" value={detail.job.selected_or_assigned} />
-                            </dl>
-
                             {detail.job.description && (
-                                <div className="mt-4 border-t border-black/15 pt-3 text-[0.95rem] leading-relaxed text-foreground">
+                                <div className="mt-3 text-[0.82rem] leading-relaxed text-muted-foreground">
+                                    <span className="font-semibold text-foreground">
+                                        Description:{' '}
+                                    </span>
                                     {detail.job.description}
                                 </div>
                             )}
 
                             {detail.job.notes && (
-                                <div className="mt-3 border-l-2 border-navy bg-sky/40 p-3 text-[0.88rem] leading-relaxed text-foreground">
-                                    <span className="mr-2 inline-block text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-navy">
-                                        Note
-                                    </span>
+                                <div className="mt-2 text-[0.82rem] leading-relaxed text-muted-foreground">
+                                    <span className="font-semibold text-foreground">Note: </span>
                                     {detail.job.notes}
                                 </div>
                             )}
@@ -262,16 +295,3 @@ export default function CampusMap() {
     )
 }
 
-function MetaRow({ label, value }: { label: string; value: string | null }) {
-    if (!value) return null
-    return (
-        <>
-            <dt className="pt-[2px] text-[0.72rem] font-bold uppercase tracking-[0.1em] text-navy">
-                {label}
-            </dt>
-            <dd className="text-[0.88rem] font-normal leading-tight text-muted-foreground">
-                {value}
-            </dd>
-        </>
-    )
-}

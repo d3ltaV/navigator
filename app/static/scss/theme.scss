@@ -282,8 +282,7 @@
     align-items: center;
     gap: 0;
     margin-left: auto;
-    border: 1px solid rgba(26, 47, 92, 0.25);
-    background: rgba(255, 255, 255, 0.72);
+    background: rgba(255, 255, 255, 0.7);
 
     button {
         display: inline-flex;
@@ -320,6 +319,24 @@
     -webkit-backdrop-filter: blur(6px) saturate(1.05);
 }
 
+// Locked pill — same size / color / weight everywhere the .pill class appears,
+// regardless of the parent context. Matches the home feature-num pill: no
+// border, translucent white block, navy uppercase text.
+.pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border: none;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--navy);
+    font-family: var(--font-body);
+    font-size: 0.66rem;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
 .dir-list-item {
     border-bottom: 1px solid rgba(27, 26, 43, 0.1);
     &:last-child { border-bottom: none; }
@@ -339,11 +356,19 @@
 
     &:hover { background: rgba(255, 255, 255, 0.55); }
 
+    // Expanded row: whole item reads as one solid white block (row + detail).
+    &[aria-expanded="true"] {
+        background: rgba(255, 255, 255, 0.9);
+    }
+    &[aria-expanded="true"] + .dir-list-detail {
+        background: rgba(255, 255, 255, 0.9);
+    }
+
     .dir-list-title {
         flex: 1;
         min-width: 0;
         font-family: var(--font-body);
-        font-weight: 600;
+        font-weight: 500;
         font-size: 0.98rem;
         color: var(--ink);
         overflow: hidden;
@@ -357,33 +382,30 @@
         gap: 10px;
         font-size: 0.82rem;
         color: var(--ink-soft);
-
-        .pill {
-            padding: 3px 9px;
-            border: 1px solid rgba(26, 47, 92, 0.15);
-            background: rgba(255, 255, 255, 0.72);
-            color: var(--navy);
-            font: 600 0.64rem/1 var(--font-body);
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
     }
 
-    .dir-list-caret {
-        color: var(--ink-soft);
-        transition: transform 0.25s ease;
+    .dir-list-arrow {
+        color: rgba(15, 23, 42, 0.25);
+        font-size: 1rem;
+        line-height: 1;
         flex-shrink: 0;
+        transition: color 0.15s ease, transform 0.18s ease;
     }
 
-    &[aria-expanded="true"] .dir-list-caret {
-        transform: rotate(90deg);
+    &:hover .dir-list-arrow {
         color: var(--navy);
+        transform: translateX(2px);
+    }
+
+    &[aria-expanded="true"] .dir-list-arrow {
+        color: var(--navy);
+        transform: rotate(90deg);
     }
 }
 
 .dir-list-detail {
     padding: 4px 18px 16px 18px;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.9);
 
     .card-meta { margin-top: 4px; }
     .workjob-description,
@@ -427,16 +449,16 @@
     align-self: flex-start;
     display: inline-block;
     margin-bottom: 12px;
-    padding: 4px 11px;
-    border: 1px solid rgba(26, 47, 92, 0.14);
+    padding: 4px 10px;
+    border: none;
     border-radius: 0;
-    background: rgba(255, 255, 255, 0.72);
+    background: rgba(255, 255, 255, 0.7);
     color: var(--navy);
-    font: 600 0.68rem/1.3 var(--font-body);
+    font: 600 0.66rem/1.3 var(--font-body);
     letter-spacing: 0.09em;
     text-transform: uppercase;
     cursor: default;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: background 0.15s ease;
 }
 
 .tags {
@@ -723,89 +745,123 @@ sl-select.chip-select {
 }
 
 // ---------- Map ----------
+// Row layout: the location popup lives inline as a left sidebar and pushes the
+// map to the right. When closed, `.popup` is display:none and the map fills the
+// row on its own.
 .map-container {
+    display: flex;
+    align-items: stretch;
+    gap: clamp(12px, 2vw, 24px);
     padding: clamp(12px, 2vw, 24px);
 }
 
 gmp-map {
     display: block;
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
     height: calc(100vh - var(--header-h) - 48px);
     min-height: 420px;
     border: var(--line);
 }
 
-// Shared frosted-glass floating card used by both the location popup
-// (bottom-left) and the workjob detail modal (centered).
+// Shared editorial styling for the two floating surfaces.
+// - `.popup` is now an INLINE left-side sidebar (frosted glass, matches cards).
+// - `.workjob-detail` stays a centered modal over the map (near-solid white).
 .popup, .workjob-detail {
     display: none;
-    position: fixed;
-    border: var(--line);
-    border-radius: 0;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(18px) saturate(1.1);
-    -webkit-backdrop-filter: blur(18px) saturate(1.1);
-    box-shadow: none;
+    overflow: hidden;
     font-family: var(--font-body);
     line-height: 1.5;
     color: var(--ink);
-    z-index: 1000;
 }
 
 .popup {
-    left: clamp(16px, 3vw, 32px);
-    bottom: clamp(16px, 3vh, 32px);
-    width: unquote("min(340px, calc(100vw - 32px))");
-    max-height: 60vh;
-    overflow: hidden;
-    flex-direction: column;
-
-    &.is-open { display: flex; }
-}
-
-.workjob-detail {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: unquote("min(560px, calc(100vw - 32px))");
-    max-height: 82vh;
-    overflow: hidden;
-    flex-direction: column;
-    z-index: 1100;
-
-    &.is-open { display: flex; }
-}
-
-// Header row — small eyebrow label on the left, close × on the right.
-.popup__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px 10px;
-    border-bottom: 1px solid rgba(27, 26, 43, 0.15);
-    flex-shrink: 0;
-}
-
-.popup__eyebrow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-    font: 600 0.68rem var(--font-body);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-}
-
-.popup__dot {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background: var(--navy);
+    position: relative;
+    order: -1; // pin to the left of the map without changing DOM order
+    flex: 0 0 320px;
+    width: 320px;
+    // Escape the .map-container padding so the sidebar glues to the left edge
+    // and spans from just under the navbar down to the bottom of the viewport.
+    margin-left: calc(-1 * clamp(12px, 2vw, 24px));
+    margin-top: calc(-1 * clamp(12px, 2vw, 24px));
+    margin-bottom: calc(-1 * clamp(12px, 2vw, 24px));
+    height: calc(100vh - var(--header-h));
+    min-height: 320px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.62);
+    backdrop-filter: blur(14px) saturate(1.08);
+    -webkit-backdrop-filter: blur(14px) saturate(1.08);
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-left: none; // glued flush to the left edge
     border-radius: 0;
+    box-shadow: none;
+    max-width: none;
+
+    &.is-open {
+        display: flex;
+        flex-direction: column;
+        animation: mp-slide-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+    }
 }
 
+@keyframes mp-slide-in {
+    from { opacity: 0; transform: translateX(-16px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+// Floating card that pops out of a triangle pointing at the sidebar arrow.
+// Positioned dynamically by map.js via inline top/left. No border, no scroll —
+// the card scales up from the triangle tip and grows to fit its content.
+.workjob-detail {
+    position: fixed;
+    width: 280px;
+    padding: 0;
+    // Override the shared `overflow: hidden` so the triangle can stick out of
+    // the card's left edge without being clipped.
+    overflow: visible;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(14px) saturate(1.08);
+    -webkit-backdrop-filter: blur(14px) saturate(1.08);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    z-index: 60;
+    // Grow outward from the triangle tip on the left edge.
+    transform-origin: -8px 24px;
+
+    // CSS-border triangle. Its base (right edge) sits exactly at the card's
+    // left edge — no translucent overlap, no seam. `--triangle-top` is set by
+    // map.js so the tip lines up with the row that opened it.
+    &::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: var(--triangle-top, 18px);
+        width: 0;
+        height: 0;
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-right: 8px solid rgba(255, 255, 255, 0.75);
+    }
+
+    &.is-open {
+        display: block;
+        animation: mp-pop-in 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+}
+
+@keyframes mp-pop-in {
+    from { opacity: 0; transform: scale(0); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+
+// Close button — floats top-right, minimal icon.
 .popup__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -813,170 +869,186 @@ gmp-map {
     height: 28px;
     padding: 0;
     background: transparent;
-    border: 1px solid transparent;
-    border-radius: 0;
+    border: none;
     color: var(--ink-soft);
-    font: 400 20px/1 var(--font-body);
     cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    transition: color 0.15s;
 
-    &:hover {
-        background: var(--sky);
-        color: var(--navy);
-        border-color: var(--navy);
-    }
+    svg { width: 16px; height: 16px; }
+    &:hover { color: var(--navy); }
 }
 
-// Scrollable content region below the header.
+// The popup body — generous inner padding, no eyebrow header anymore.
 .popup__body {
-    padding: 14px 18px 18px;
+    padding: 24px 24px 24px;
     overflow-y: auto;
     flex: 1;
 
     h3 {
         font-family: var(--font-display);
-        font-size: 1.35rem;
+        font-size: 1.5rem;
         font-weight: 600;
-        letter-spacing: -0.015em;
+        letter-spacing: -0.018em;
         color: var(--ink);
-        margin: 0 0 12px;
-        line-height: 1.2;
+        margin: 0;
+        padding-right: 32px; // clear the close button
+        line-height: 1.15;
 
         em { color: var(--crimson); }
     }
-
-    // "Workjobs:" section label above the list.
-    .wj, .popup__section-label {
-        margin: 0 0 8px;
-        font: 600 0.7rem var(--font-body);
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--ink-soft);
-
-        strong { color: var(--ink-soft); font-weight: 600; }
-    }
-
-    p { margin: 6px 0; }
 }
 
-// Vertical list wrapper for workjob links inside the location popup.
+// The workjob detail panel is a compact callout — just title, description,
+// note. No divider above the description since there's no meta block above.
+.workjob-detail .popup__body {
+    padding: 16px 16px 16px;
+
+    h3 { font-size: 1.05rem; padding-right: 24px; line-height: 1.2; }
+
+    .workjob-description {
+        margin-top: 12px;
+        padding-top: 0;
+        border-top: none;
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+}
+
+.popup__count {
+    margin: 4px 0 0;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+}
+
+// Location popup — clickable workjob list.
 .popup__list {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    margin-top: 16px;
 }
 
 .popup__empty {
-    margin: 4px 0 0;
+    margin-top: 12px;
     color: var(--ink-soft);
     font-size: 0.9rem;
     font-style: italic;
 }
 
-// Workjob links inside the popup — read as a clean list.
 .workjob-link {
-    display: block;
-    padding: 9px 12px;
-    color: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid rgba(15, 23, 42, 0.06);
+    color: var(--ink);
     font-weight: 500;
     font-size: 0.95rem;
     text-decoration: none;
-    border-left: 2px solid transparent;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    cursor: pointer;
+    transition: color 0.15s;
+
+    &:first-child { border-top: none; }
+
+    &::after {
+        content: '→';
+        color: rgba(15, 23, 42, 0.25);
+        transition: color 0.15s, transform 0.15s;
+    }
 
     &:hover {
-        background: var(--sky-soft);
-        border-left-color: var(--navy);
         color: var(--navy);
+        &::after { color: var(--navy); transform: translateX(2px); }
     }
 }
 
-// Definition-list metadata inside the workjob detail modal.
-// Uses a 2-column grid so labels and values align crisply.
+// Workjob detail metadata — cleaner grid + more spacing.
 .popup__meta {
     display: grid;
     grid-template-columns: max-content 1fr;
-    gap: 6px 18px;
-    margin: 0 0 4px;
+    gap: 12px 32px;
+    margin: 24px 0 0;
 
     .workjob-info {
         display: contents;
         margin: 0;
-        font-size: 0.88rem;
-        line-height: 1.45;
+        font-size: 0.92rem;
+        line-height: 1.5;
 
         strong {
-            color: var(--navy);
-            font: 700 0.72rem var(--font-body);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
             padding-top: 3px;
+            color: var(--ink-soft);
+            font: 600 0.72rem var(--font-body);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         span {
-            color: var(--ink-soft);
+            color: var(--ink);
             font-weight: 400;
-            a { color: var(--navy); font-weight: 500; text-decoration: none;
-                &:hover { text-decoration: underline; } }
+            a {
+                color: var(--navy);
+                text-decoration: none;
+                &:hover { text-decoration: underline; }
+            }
         }
     }
 }
 
 .popup__body .workjob-description {
-    margin-top: 16px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(27, 26, 43, 0.15);
-    color: var(--ink);
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    color: rgba(27, 26, 43, 0.85);
     font-size: 0.95rem;
-    line-height: 1.55;
+    line-height: 1.65;
 }
 
+// Inline "Note: text" — matches the club card's inline "Description:" pattern.
 .workjob-note {
-    margin-top: 14px;
-    padding: 12px 14px;
-    background: var(--sky-soft);
-    border-left: 2px solid var(--navy);
-    color: var(--ink);
-    font-size: 0.88rem;
-    line-height: 1.5;
+    display: block;
+    margin-top: 8px;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    line-height: 1.55;
 
     strong {
-        display: inline-block;
-        margin-right: 6px;
-        color: var(--navy);
-        font: 600 0.68rem var(--font-body);
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
+        color: var(--ink);
+        font-weight: 600;
     }
 }
 
-// Tabs for switching between workjobs at the same location.
+// Underline-style tabs at the top of the detail (only when a location has multiple workjobs).
 .workjob-tabs {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 0 0 16px;
+    gap: 24px;
+    margin: 24px 0 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .workjob-tab {
-    padding: 6px 12px;
-    border: 1px solid rgba(26, 47, 92, 0.35);
-    border-radius: 0;
-    background: rgba(255, 255, 255, 0.5);
-    color: var(--navy);
-    font: 500 0.8rem var(--font-body);
+    position: relative;
+    padding: 0 0 12px;
+    background: transparent;
+    border: none;
+    color: var(--ink-soft);
+    font: 500 0.88rem var(--font-body);
+    letter-spacing: 0;
     cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    transition: color 0.15s;
 
-    &:hover {
-        background: var(--sky);
-        border-color: var(--navy);
-    }
+    &:hover { color: var(--ink); }
 
     &.active {
-        background: var(--navy);
-        color: var(--paper);
-        border-color: var(--navy);
+        color: var(--navy);
+        &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -1px;
+            height: 2px;
+            background: var(--navy);
+        }
     }
 }
 
@@ -1041,7 +1113,25 @@ gmp-map {
 
 .resource-description { color: var(--ink-soft); font-size: 0.9rem; }
 
-@media (max-width: 600px) {
-    .popup { left: 16px; right: 16px; bottom: 16px; max-width: none; }
-    .workjob-detail { width: calc(100vw - 32px); }
+@media (max-width: 700px) {
+    // Below tablet width the sidebar row layout collapses — stack the popup
+    // above the map so both stay usable.
+    .map-container { flex-direction: column; }
+    .popup {
+        order: 0;
+        flex: 0 0 auto;
+        width: 100%;
+        height: auto;
+        max-height: 50vh;
+        min-height: 0;
+        margin: 0;
+        border-left: 1px solid rgba(15, 23, 42, 0.1);
+    }
+    gmp-map { height: 60vh; }
+    // The callout is still position: fixed and sized by JS, so it doesn't
+    // participate in the stacked layout — just clamp its width.
+    .workjob-detail {
+        width: calc(100vw - 32px);
+        max-width: 320px;
+    }
 }

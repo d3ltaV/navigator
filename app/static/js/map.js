@@ -55,17 +55,19 @@ async function initMap() {
                 .then(data => {
                     const popup = document.getElementById("popup");
                     const popupContent = document.getElementById("popup-content");
+                    // Reset the detail drawer so the previous location's
+                    // workjob doesn't linger next to a new location's list.
+                    document.getElementById("workjob-detail").classList.remove("is-open");
 
                     let html = `<h3>${title}</h3>`;
 
                     if (!data.error && data.length) {
-                        html += `<p class="popup__section-label">Workjobs at this location</p>`;
+                        html += `<p class="popup__count">${data.length} workjob${data.length !== 1 ? 's' : ''}</p>`;
                         html += `<div class="popup__list">`;
                         data.forEach(job => {
                             const sJob = encodeURIComponent(JSON.stringify(job));
-                            const sData = encodeURIComponent(JSON.stringify(data));
                             const name = job.name ?? "Unnamed Workjob";
-                            html += `<a href="#" class="workjob-link" data-job="${sJob}" data-all="${sData}">${name}</a>`;
+                            html += `<a href="#" class="workjob-link" data-job="${sJob}">${name}</a>`;
                         });
                         html += `</div>`;
                     } else {
@@ -74,22 +76,18 @@ async function initMap() {
 
                     popupContent.innerHTML = html;
                     popup.classList.add("is-open");
-                    if (window.gsap) {
-                        gsap.fromTo(popup,
-                            { opacity: 0, y: 8 },
-                            { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out', clearProps: 'transform' }
-                        );
-                    }
 
                     document.querySelectorAll('.workjob-link').forEach(link => {
                         link.addEventListener('click', (e) => {
                             e.preventDefault();
                             const target = e.target.closest('.workjob-link');
                             const dwj = decodeURIComponent(target.dataset.job);
-                            const aj = decodeURIComponent(target.dataset.all);
                             const workjob = JSON.parse(dwj);
-                            const allJobs = JSON.parse(aj);
-                            showWorkJobDetail(workjob, allJobs);
+                            const linkRect = target.getBoundingClientRect();
+                            const sidebar = target.closest('.popup');
+                            const anchorX = sidebar ? sidebar.getBoundingClientRect().right : linkRect.right;
+                            const anchorY = linkRect.top + linkRect.height / 2;
+                            showWorkJobDetail(workjob, anchorX, anchorY);
                         });
                     });
                 })
@@ -99,6 +97,9 @@ async function initMap() {
 
     document.getElementById("popup-close").addEventListener("click", () => {
         document.getElementById("popup").classList.remove("is-open");
+        // Closing the location list also closes the detail drawer — it has no
+        // context on its own.
+        document.getElementById("workjob-detail").classList.remove("is-open");
     });
 
     document.getElementById("workjob-detail-close").addEventListener("click", () => {
@@ -117,46 +118,34 @@ async function initMap() {
     }
 }
 
-function showWorkJobDetail(workjob, allJobs) {
+function showWorkJobDetail(workjob, anchorX, anchorY) {
     const detail = document.getElementById("workjob-detail");
     const detailContent = document.getElementById("workjob-detail-content");
 
     let html = '';
 
-    if (allJobs && allJobs.length > 1) {
-        html += '<div class="workjob-tabs">';
-        allJobs.forEach((j, idx) => {
-            const active = j.name === workjob.name ? 'active' : '';
-            html += `<button class="workjob-tab ${active}" data-index="${idx}">${j.name}</button>`;
-        });
-        html += '</div>';
-    }
-
-    html += `<h3 class="workjob-title">${workjob.name ?? 'Untitled Workjob'}</h3>`;
-    html += `<div class="popup__meta">`;
-    if (workjob.location)            html += `<div class="workjob-info"><strong>Location</strong><span>${workjob.location}</span></div>`;
-    if (workjob.supervisor)          html += `<div class="workjob-info"><strong>Supervisor</strong><span>${workjob.supervisor}</span></div>`;
-    if (workjob.supervisor_email)    html += `<div class="workjob-info"><strong>Email</strong><span><a href="mailto:${workjob.supervisor_email}">${workjob.supervisor_email}</a></span></div>`;
-    if (workjob.spots)               html += `<div class="workjob-info"><strong>Spots</strong><span>${workjob.spots}</span></div>`;
-    if (workjob.blocks)              html += `<div class="workjob-info"><strong>Blocks</strong><span>${workjob.blocks}</span></div>`;
-    if (workjob.selected_or_assigned)html += `<div class="workjob-info"><strong>Type</strong><span>${workjob.selected_or_assigned}</span></div>`;
-    html += `</div>`;
-    if (workjob.description) html += `<div class="workjob-description">${workjob.description}</div>`;
-    if (workjob.notes)       html += `<div class="workjob-note"><strong>Note</strong> ${workjob.notes}</div>`;
+    html += `<h3>${workjob.name ?? 'Untitled Workjob'}</h3>`;
+    if (workjob.description) html += `<div class="workjob-description"><strong>Description:</strong> ${workjob.description}</div>`;
+    if (workjob.notes)       html += `<div class="workjob-note"><strong>Note:</strong> ${workjob.notes}</div>`;
 
     detailContent.innerHTML = html;
     detail.classList.add("is-open");
-    if (window.gsap) {
-        // Only opacity — the modal's CSS translate(-50%, -50%) keeps it centered.
-        gsap.fromTo(detail, { opacity: 0 }, { opacity: 1, duration: 0.22, ease: 'power2.out' });
-    }
 
-    document.querySelectorAll('.workjob-tab').forEach(tab => {
-        tab.addEventListener('click', (e) => {
-            const idx = parseInt(e.target.dataset.index);
-            showWorkJobDetail(allJobs[idx], allJobs);
-        });
-    });
+    // Anchor next to the clicked row's arrow. Measure AFTER opening so tall
+    // content is nudged up to stay fully on screen, and shift the triangle
+    // inside the card so it still lines up with the clicked row.
+    if (typeof anchorX === "number" && typeof anchorY === "number") {
+        // Force layout so offsetHeight reflects the just-injected content.
+        const height = detail.offsetHeight;
+        const idealTop = anchorY - 26;
+        const maxTop = window.innerHeight - height - 20;
+        const cardTop = Math.max(20, Math.min(idealTop, maxTop));
+        const triangleTop = Math.max(6, Math.min(height - 22, anchorY - cardTop - 8));
+        detail.style.left = `${anchorX + 12}px`;
+        detail.style.top = `${cardTop}px`;
+        detail.style.setProperty("--triangle-top", `${triangleTop}px`);
+        detail.style.transformOrigin = `-8px ${triangleTop + 8}px`;
+    }
 }
 
 initMap();

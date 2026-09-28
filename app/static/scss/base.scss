@@ -105,8 +105,10 @@ em {
 // full brightness by the time we reach the bottom.
 .scene-layer--sun {
     z-index: 3;
+    // Opacity deliberately delayed so the sun only fades in after it clears
+    // the mountain ridge, rather than ghosting through it at low scroll.
     transform: translateY(calc((1 - var(--scroll-t, 0)) * 55vh));
-    opacity: calc(var(--scroll-t, 0) * 1.4 - 0.15);
+    opacity: calc(var(--scroll-t, 0) * 2.4 - 1.2);
 }
 
 // Layer 4 — stars. Visible at rest under the night sky; fade out as sun rises.
@@ -163,12 +165,12 @@ em {
     background-position: center;
     background-size: contain;
     opacity: 0;
-    // Petals read their full pink at rest (night default) and desaturate a
-    // touch as the sunrise takes over. Drop-shadow filters were the single
-    // biggest per-frame cost on scroll, so we skip them here.
+    // Petals hold their washed-out day tint at both night and day, with a
+    // soft white halo that reads consistently against either sky.
     filter:
-        saturate(calc(1.17 - var(--scroll-t, 0) * 0.85))
-        brightness(calc(1.0 + var(--scroll-t, 0) * 0.22));
+        saturate(0.32)
+        brightness(1.22)
+        drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
     animation:
         leaf-fall var(--fall-dur, 18s) linear var(--fall-delay, 0s) infinite,
         leaf-sway var(--sway-dur, 4s) ease-in-out var(--sway-delay, 0s) infinite alternate;
@@ -177,23 +179,23 @@ em {
     &--1 { left: 6%; --fall-dur: 16s; --fall-delay: -2s; --sway-dur: 3.6s; --sway-shift: 34px; width: 22px; height: 22px;
         background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
     &--2 { left: 18%; --fall-dur: 21s; --fall-delay: -6s; --sway-dur: 4.2s; --sway-shift: 26px; width: 18px; height: 18px;
-        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f2a3b8'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
     &--3 { left: 32%; --fall-dur: 19s; --fall-delay: -12s; --sway-dur: 3.2s; --sway-shift: 40px; width: 24px; height: 24px;
-        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23d8a6c8'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
     &--4 { left: 46%; --fall-dur: 24s; --fall-delay: -4s; --sway-dur: 5s; --sway-shift: 22px; width: 20px; height: 20px;
         background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
     &--5 { left: 58%; --fall-dur: 17s; --fall-delay: -10s; --sway-dur: 3.8s; --sway-shift: 30px; width: 16px; height: 16px;
-        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f2a3b8'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
     &--6 { left: 68%; --fall-dur: 22s; --fall-delay: -8s; --sway-dur: 4.6s; --sway-shift: 28px; width: 22px; height: 22px;
-        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23e08aa6'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
     &--7 { left: 78%; --fall-dur: 20s; --fall-delay: -15s; --sway-dur: 3.4s; --sway-shift: 34px; width: 18px; height: 18px;
-        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23d8a6c8'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
     &--8 { left: 88%; --fall-dur: 23s; --fall-delay: -3s; --sway-dur: 4.4s; --sway-shift: 24px; width: 20px; height: 20px;
         background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
     &--9 { left: 12%; --fall-dur: 25s; --fall-delay: -18s; --sway-dur: 5.2s; --sway-shift: 32px; width: 14px; height: 14px;
-        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f2a3b8'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
     &--10 { left: 92%; --fall-dur: 18s; --fall-delay: -14s; --sway-dur: 3s; --sway-shift: 26px; width: 16px; height: 16px;
-        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23e08aa6'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox='0%200%2040%2040'%3E%3Cg%20fill='%23f9c1cf'%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%2872%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28144%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28216%2020%2020%29'%2F%3E%3Cellipse%20cx='20'%20cy='9'%20rx='6.5'%20ry='10.5'%20transform='rotate%28288%2020%2020%29'%2F%3E%3C%2Fg%3E%3Ccircle%20cx='20'%20cy='20'%20r='2.5'%20fill='%23b0637a'%2F%3E%3C%2Fsvg%3E"); }
 }
 
 @keyframes leaf-fall {
@@ -320,7 +322,7 @@ em {
     transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.35);
         backdrop-filter: blur(14px) saturate(1.05);
         -webkit-backdrop-filter: blur(14px) saturate(1.05);
         color: var(--ink);
@@ -336,7 +338,7 @@ em {
     border: 1px solid var(--navy);
 
     &:hover {
-        background: rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.35);
         backdrop-filter: blur(14px) saturate(1.05);
         -webkit-backdrop-filter: blur(14px) saturate(1.05);
         color: var(--ink);
