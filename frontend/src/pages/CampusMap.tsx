@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { setOptions, importLibrary } from '@googlemaps/js-api-loader'
+import { RichText } from '@/components/RichText'
 
 type Workjob = {
     name: string | null
@@ -31,6 +32,8 @@ const LOCATIONS: { title: string; position: { lat: number; lng: number } }[] = [
     { title: 'BEV', position: { lat: 42.66896317632714, lng: -72.48240568446545 } },
     { title: 'Forest', position: { lat: 42.67102844380024, lng: -72.48804669028948 } },
     { title: 'Blake', position: { lat: 42.66851986413596, lng: -72.4847851241787 } },
+    { title: 'Chapel', position: { lat: 42.665991, lng: -72.484017 } },
+    { title: 'College Counseling', position: { lat: 42.668104, lng: -72.486427 } },
 ]
 
 const BOUNDS = { north: 42.72, south: 42.62, west: -72.545, east: -72.43 }
@@ -262,14 +265,14 @@ export default function CampusMap() {
                                     <span className="font-semibold text-foreground">
                                         Description:{' '}
                                     </span>
-                                    {detail.job.description}
+                                    <RichText text={detail.job.description} />
                                 </div>
                             )}
 
                             {detail.job.notes && (
                                 <div className="mt-2 text-[0.82rem] leading-relaxed text-muted-foreground">
                                     <span className="font-semibold text-foreground">Note: </span>
-                                    {detail.job.notes}
+                                    <RichText text={detail.job.notes} />
                                 </div>
                             )}
                         </div>
@@ -279,4 +282,5 @@ export default function CampusMap() {
         </div>
     )
 }
+
 

@@ -997,6 +997,15 @@ gmp-map {
     }
 }
 
+.rt-list {
+    margin: 4px 0 0;
+    padding-left: 18px;
+    list-style: disc;
+    li { margin: 2px 0; }
+}
+.rt-p { margin: 4px 0 0; }
+.rt-p:first-child, .rt-list:first-child { margin-top: 0; }
+
 // Underline-style tabs at the top of the detail (only when a location has multiple workjobs).
 .workjob-tabs {
     display: flex;

@@ -4,37 +4,37 @@ import os
 
 class WorkJobList:
 
-    def __init__(self, name, location, supervisor, supervisor_email,
-                 spots, blocks, selected_or_assigned, description, notes):
+    def __init__(self, name, location, description):
         self.name = name
         self.location = location
-        self.supervisor = supervisor
-        self.supervisor_email = supervisor_email
-        self.spots = spots
-        self.blocks = blocks
-        self.selected_or_assigned = selected_or_assigned
         self.description = description
-        self.notes = notes
 
     def to_dict(self):
         return {
             "name": self.name,
             "location": self.location,
-            "supervisor": self.supervisor,
-            "supervisor_email": self.supervisor_email,
-            "spots": self.spots,
-            "blocks": self.blocks,
-            "selected_or_assigned": self.selected_or_assigned,
             "description": self.description,
-            "notes": self.notes
         }
-    
+
     @classmethod
     def getTable(cls):
         load_dotenv()
         docs = os.getenv('WORKJOB_URL')
         table = pd.read_csv(docs)
         return table
+
+    LOCATION_ALIASES = {
+        "health center": "O'Connor Health Center",
+        "o'connor health center": "O'Connor Health Center",
+        "oconnor health center": "O'Connor Health Center",
+    }
+
+    @classmethod
+    def normalizeLocation(cls, loc):
+        if loc is None:
+            return None
+        key = str(loc).strip().lower()
+        return cls.LOCATION_ALIASES.get(key, str(loc).strip())
 
     @classmethod
     def getWorkjobs(cls):
@@ -43,16 +43,13 @@ class WorkJobList:
         for i, r in table.iterrows():
             def get(col):
                 return r[col] if col in table.columns and pd.notna(r[col]) else None
+            occurring = get("Occuring") or get("Occurring")
+            if str(occurring).strip().lower() != "yes":
+                continue
             job = cls(
                 name=get("Workjob Name"),
-                location=get("Location"),
-                supervisor=get("Supervisor"),
-                supervisor_email=get("Supervisor Email"),
-                spots=get("Spots"),
-                blocks=get("Blocks (if availiable)"),
-                selected_or_assigned=get("Selected/Assigned"),
+                location=cls.normalizeLocation(get("Location")),
                 description=get("Description"),
-                notes=get("Notes"),
             )
             workjobs.append(job)
 

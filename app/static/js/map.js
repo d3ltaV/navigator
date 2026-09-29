@@ -27,6 +27,8 @@ async function initMap() {
         { title: "BEV", position: { lat:42.66896317632714 , lng: -72.48240568446545} },
         { title: "Forest", position: {lat: 42.67102844380024, lng: -72.48804669028948} },
         { title: "Blake", position: {lat: 42.66851986413596, lng: -72.4847851241787} },
+        { title: "Chapel", position: {lat: 42.665991, lng: -72.484017} },
+        { title: "College Counseling", position: {lat: 42.668104, lng: -72.486427} },
     ];
 
     await mapElement.innerMap;
@@ -121,8 +123,8 @@ function showWorkJobDetail(workjob, anchorX, anchorY) {
     let html = '';
 
     html += `<h3>${workjob.name ?? 'Untitled Workjob'}</h3>`;
-    if (workjob.description) html += `<div class="workjob-description"><strong>Description:</strong> ${workjob.description}</div>`;
-    if (workjob.notes)       html += `<div class="workjob-note"><strong>Note:</strong> ${workjob.notes}</div>`;
+    if (workjob.description) html += `<div class="workjob-description"><strong>Description:</strong> ${renderRichText(workjob.description)}</div>`;
+    if (workjob.notes)       html += `<div class="workjob-note"><strong>Note:</strong> ${renderRichText(workjob.notes)}</div>`;
 
     detailContent.innerHTML = html;
     detail.classList.add("is-open");
@@ -138,6 +140,38 @@ function showWorkJobDetail(workjob, anchorX, anchorY) {
         detail.style.setProperty("--triangle-top", `${triangleTop}px`);
         detail.style.transformOrigin = `-8px ${triangleTop + 8}px`;
     }
+}
+
+function escapeHtml(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function renderRichText(text) {
+    const lines = String(text).replace(/\r/g, '').split('\n').map(l => l.trim()).filter(Boolean);
+    const blocks = [];
+    let ul = null;
+    for (const line of lines) {
+        if (/^[-•*]/.test(line)) {
+            const item = line.replace(/^[-•*]\s*/, '');
+            if (!item) continue;
+            if (!ul) { ul = []; blocks.push({ type: 'ul', items: ul }); }
+            ul.push(item);
+        } else {
+            ul = null;
+            blocks.push({ type: 'p', text: line });
+        }
+    }
+    if (blocks.length === 1 && blocks[0].type === 'p') return escapeHtml(blocks[0].text);
+    return blocks.map(b =>
+        b.type === 'ul'
+            ? `<ul class="rt-list">${b.items.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul>`
+            : `<p class="rt-p">${escapeHtml(b.text)}</p>`
+    ).join('');
 }
 
 initMap();
