@@ -4,6 +4,7 @@ import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ViewToggle, useViewMode } from '@/components/ViewToggle'
+import { RichText } from '@/components/RichText'
 
 type WorkjobRow = {
     name: string | null
@@ -127,7 +128,7 @@ export default function Workjobs() {
                                         {j.description && (
                                             <div className="mt-1 border-t border-black/15 pt-2.5 text-[0.9rem] leading-relaxed text-muted-foreground">
                                                 <span className="font-semibold text-foreground">Description: </span>
-                                                {j.description}
+                                                <RichText text={j.description} />
                                             </div>
                                         )}
                                         {j.notes && (
@@ -168,7 +169,7 @@ export default function Workjobs() {
                                 {j.description && (
                                     <div className="mt-2.5 border-t border-black/15 pt-2.5 text-[0.9rem] leading-relaxed text-muted-foreground">
                                         <span className="font-semibold text-foreground">Description: </span>
-                                        {j.description}
+                                        <RichText text={j.description} />
                                     </div>
                                 )}
 
