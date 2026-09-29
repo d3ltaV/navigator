@@ -116,8 +116,6 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      // Neutral warm-gray highlight instead of shadcn's default saturated blue
-      // `bg-accent` — reads as "highlighted" without introducing a fresh hue.
       "relative flex w-full cursor-default select-none items-center py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-white/60 focus:text-navy data-[state=checked]:bg-white/60 data-[state=checked]:text-navy data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}

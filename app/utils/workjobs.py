@@ -41,18 +41,19 @@ class WorkJobList:
         table = cls.getTable()
         workjobs = []
         for i, r in table.iterrows():
+            def get(col):
+                return r[col] if col in table.columns and pd.notna(r[col]) else None
             job = cls(
-                name=r["Workjob Name"] if pd.notna(r["Workjob Name"]) else None,
-                location=r["Location"] if pd.notna(r["Location"]) else None,
-                supervisor=r["Supervisor"] if pd.notna(r["Supervisor"]) else None,
-                supervisor_email=r["Supervisor Email"] if pd.notna(r["Supervisor Email"]) else None,
-                spots=r["Spots"] if pd.notna(r["Spots"]) else None,
-                blocks=r["Blocks (if availiable)"] if pd.notna(r["Blocks (if availiable)"]) else None,
-                selected_or_assigned=r["Selected/Assigned"] if pd.notna(r["Selected/Assigned"]) else None,
-                description=r["Description"] if pd.notna(r["Description"]) else None,
-                notes=r["Notes"] if pd.notna(r["Notes"]) else None
+                name=get("Workjob Name"),
+                location=get("Location"),
+                supervisor=get("Supervisor"),
+                supervisor_email=get("Supervisor Email"),
+                spots=get("Spots"),
+                blocks=get("Blocks (if availiable)"),
+                selected_or_assigned=get("Selected/Assigned"),
+                description=get("Description"),
+                notes=get("Notes"),
             )
-
             workjobs.append(job)
 
         return workjobs

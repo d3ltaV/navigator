@@ -494,9 +494,7 @@
     background: rgba(255, 255, 255, 0.9);
 }
 
-/* Rectangular map pins — used by CampusMap for AdvancedMarkerElement content.
-   Default is navy like the home `.btn`; hover switches to the same frosted
-   translucent-white treatment as `.btn:hover`. */
+/* Rectangular map pins — used by CampusMap for AdvancedMarkerElement content. */
 .rect-pin {
     display: inline-flex;
     align-items: center;

@@ -55,8 +55,6 @@ async function initMap() {
                 .then(data => {
                     const popup = document.getElementById("popup");
                     const popupContent = document.getElementById("popup-content");
-                    // Reset the detail drawer so the previous location's
-                    // workjob doesn't linger next to a new location's list.
                     document.getElementById("workjob-detail").classList.remove("is-open");
 
                     let html = `<h3>${title}</h3>`;
@@ -97,8 +95,6 @@ async function initMap() {
 
     document.getElementById("popup-close").addEventListener("click", () => {
         document.getElementById("popup").classList.remove("is-open");
-        // Closing the location list also closes the detail drawer — it has no
-        // context on its own.
         document.getElementById("workjob-detail").classList.remove("is-open");
     });
 
@@ -131,11 +127,7 @@ function showWorkJobDetail(workjob, anchorX, anchorY) {
     detailContent.innerHTML = html;
     detail.classList.add("is-open");
 
-    // Anchor next to the clicked row's arrow. Measure AFTER opening so tall
-    // content is nudged up to stay fully on screen, and shift the triangle
-    // inside the card so it still lines up with the clicked row.
     if (typeof anchorX === "number" && typeof anchorY === "number") {
-        // Force layout so offsetHeight reflects the just-injected content.
         const height = detail.offsetHeight;
         const idealTop = anchorY - 26;
         const maxTop = window.innerHeight - height - 20;

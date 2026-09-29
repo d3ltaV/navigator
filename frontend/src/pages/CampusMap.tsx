@@ -44,8 +44,6 @@ export default function CampusMap() {
         anchorX: number
         anchorY: number
     } | null>(null)
-    // Card top + triangle Y inside the card — measured after mount so tall
-    // content is nudged up to stay fully on screen.
     const [pos, setPos] = useState<{ top: number; triangleTop: number }>({
         top: 0,
         triangleTop: 18,
@@ -101,8 +99,6 @@ export default function CampusMap() {
                                     title,
                                     jobs: Array.isArray(data) ? data : [],
                                 })
-                                // Reset the detail drawer so the previous
-                                // location's workjob doesn't linger.
                                 setDetail(null)
                             })
                     })
@@ -119,7 +115,6 @@ export default function CampusMap() {
             className="relative flex flex-col items-stretch gap-3 md:flex-row md:gap-6"
             style={{ padding: 'clamp(12px, 2vw, 24px)' }}
         >
-            {/* Location popup — inline left sidebar that pushes the map right when open. */}
             <AnimatePresence initial={false}>
                 {popup && (
                     <motion.aside
@@ -216,13 +211,6 @@ export default function CampusMap() {
                 }}
             />
 
-            {/*
-             * Workjob detail — floating card that pops out of a triangle
-             * pointing at the sidebar arrow. The triangle butts up against
-             * the card with zero overlap, so translucent layers don't stack
-             * into a darker seam. Card top is measured after mount so long
-             * descriptions stay fully on screen.
-             */}
             <AnimatePresence>
                 {detail && (
                     <motion.div
@@ -239,9 +227,6 @@ export default function CampusMap() {
                             transformOrigin: `-8px ${pos.triangleTop + 8}px`,
                         }}
                     >
-                        {/* Triangle tail — a CSS-border triangle. Its base
-                            (right edge) sits exactly at the card's left edge,
-                            so there is no translucent overlap. */}
                         <span
                             aria-hidden
                             className="pointer-events-none absolute"

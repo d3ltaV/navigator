@@ -745,9 +745,6 @@ sl-select.chip-select {
 }
 
 // ---------- Map ----------
-// Row layout: the location popup lives inline as a left sidebar and pushes the
-// map to the right. When closed, `.popup` is display:none and the map fills the
-// row on its own.
 .map-container {
     display: flex;
     align-items: stretch;
@@ -764,9 +761,6 @@ gmp-map {
     border: var(--line);
 }
 
-// Shared editorial styling for the two floating surfaces.
-// - `.popup` is now an INLINE left-side sidebar (frosted glass, matches cards).
-// - `.workjob-detail` stays a centered modal over the map (near-solid white).
 .popup, .workjob-detail {
     display: none;
     overflow: hidden;
@@ -777,11 +771,9 @@ gmp-map {
 
 .popup {
     position: relative;
-    order: -1; // pin to the left of the map without changing DOM order
+    order: -1;
     flex: 0 0 320px;
     width: 320px;
-    // Escape the .map-container padding so the sidebar glues to the left edge
-    // and spans from just under the navbar down to the bottom of the viewport.
     margin-left: calc(-1 * clamp(12px, 2vw, 24px));
     margin-top: calc(-1 * clamp(12px, 2vw, 24px));
     margin-bottom: calc(-1 * clamp(12px, 2vw, 24px));
@@ -792,7 +784,7 @@ gmp-map {
     backdrop-filter: blur(14px) saturate(1.08);
     -webkit-backdrop-filter: blur(14px) saturate(1.08);
     border: 1px solid rgba(15, 23, 42, 0.1);
-    border-left: none; // glued flush to the left edge
+    border-left: none;
     border-radius: 0;
     box-shadow: none;
     max-width: none;
@@ -809,15 +801,10 @@ gmp-map {
     to   { opacity: 1; transform: translateX(0); }
 }
 
-// Floating card that pops out of a triangle pointing at the sidebar arrow.
-// Positioned dynamically by map.js via inline top/left. No border, no scroll —
-// the card scales up from the triangle tip and grows to fit its content.
 .workjob-detail {
     position: fixed;
     width: 280px;
     padding: 0;
-    // Override the shared `overflow: hidden` so the triangle can stick out of
-    // the card's left edge without being clipped.
     overflow: visible;
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(14px) saturate(1.08);
@@ -826,12 +813,8 @@ gmp-map {
     border-radius: 0;
     box-shadow: none;
     z-index: 60;
-    // Grow outward from the triangle tip on the left edge.
     transform-origin: -8px 24px;
 
-    // CSS-border triangle. Its base (right edge) sits exactly at the card's
-    // left edge — no translucent overlap, no seam. `--triangle-top` is set by
-    // map.js so the tip lines up with the row that opened it.
     &::before {
         content: '';
         position: absolute;
@@ -898,8 +881,6 @@ gmp-map {
     }
 }
 
-// The workjob detail panel is a compact callout — just title, description,
-// note. No divider above the description since there's no meta block above.
 .workjob-detail .popup__body {
     padding: 16px 16px 16px;
 
@@ -1003,7 +984,6 @@ gmp-map {
     line-height: 1.65;
 }
 
-// Inline "Note: text" — matches the club card's inline "Description:" pattern.
 .workjob-note {
     display: block;
     margin-top: 8px;
@@ -1114,8 +1094,6 @@ gmp-map {
 .resource-description { color: var(--ink-soft); font-size: 0.9rem; }
 
 @media (max-width: 700px) {
-    // Below tablet width the sidebar row layout collapses — stack the popup
-    // above the map so both stay usable.
     .map-container { flex-direction: column; }
     .popup {
         order: 0;
@@ -1128,8 +1106,6 @@ gmp-map {
         border-left: 1px solid rgba(15, 23, 42, 0.1);
     }
     gmp-map { height: 60vh; }
-    // The callout is still position: fixed and sized by JS, so it doesn't
-    // participate in the stacked layout — just clamp its width.
     .workjob-detail {
         width: calc(100vw - 32px);
         max-width: 320px;
